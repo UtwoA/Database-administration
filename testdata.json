@@ -1,9 +1,53 @@
 db.categories.insertMany([
   { name: "Laser Printers" },
   { name: "Inkjet Printers" },
-  { name: "3D Printers" },
   { name: "Office Printers" },
-  { name: "Photo Printers" }
+  { name: "3D Printers" }
+])
+
+db.customers.insertMany([
+
+  {
+    firstName: "John",
+    lastName: "Smith",
+    email: "john@gmail.com",
+    phone: "+111111111"
+  },
+
+  {
+    firstName: "Anna",
+    lastName: "Brown",
+    email: "anna@gmail.com",
+    phone: "+222222222"
+  },
+
+  {
+    firstName: "Mike",
+    lastName: "Johnson",
+    email: "mike@gmail.com",
+    phone: "+333333333"
+  }
+
+])
+
+db.employees.insertMany([
+
+  {
+    firstName: "David",
+    lastName: "Wilson",
+    position: "Manager",
+    email: "manager@shop.com",
+    salary: 3500
+  },
+
+  {
+    firstName: "Emma",
+    lastName: "Taylor",
+    position: "Sales Assistant",
+    email: "sales@shop.com",
+    salary: 2500
+  }
+
 ])
 
 
@@ -11,65 +55,376 @@ db.products.insertMany([
 
   {
     name: "HP LaserJet Pro M404",
-    quantity: 15,
-    price: 299.99,
     manufacturer: "HP",
-    format: "A4",
-    categoryId: ObjectId("CATEGORY_ID_1")
+    paperFormat: "A4",
+    colors: 1,
+    price: 299.99,
+    categoryId: ObjectId("6a0463e7706582a2d944ba8e")
+  },
+
+  {
+    name: "HP Color Laser 150nw",
+    manufacturer: "HP",
+    paperFormat: "A4",
+    colors: 4,
+    price: 349.99,
+    categoryId: ObjectId("6a0463e7706582a2d944ba8e")
   },
 
   {
     name: "Canon PIXMA G3411",
-    quantity: 20,
-    price: 199.99,
     manufacturer: "Canon",
-    format: "A4",
-    categoryId: ObjectId("CATEGORY_ID_2")
+    paperFormat: "A4",
+    colors: 4,
+    price: 199.99,
+    categoryId: ObjectId("6a0463e7706582a2d944ba8f")
+  },
+
+  {
+    name: "Canon MAXIFY GX3040",
+    manufacturer: "Canon",
+    paperFormat: "A3",
+    colors: 4,
+    price: 499.99,
+    categoryId: ObjectId("6a0463e7706582a2d944ba8f")
   },
 
   {
     name: "Epson EcoTank L3250",
-    quantity: 10,
-    price: 249.99,
     manufacturer: "Epson",
-    format: "A4",
-    categoryId: ObjectId("CATEGORY_ID_2")
+    paperFormat: "A4",
+    colors: 4,
+    price: 259.99,
+    categoryId: ObjectId("6a0463e7706582a2d944ba8f")
   },
 
   {
-    name: "Anycubic Kobra 2",
-    quantity: 5,
-    price: 450,
-    manufacturer: "Anycubic",
-    format: "A3",
-    categoryId: ObjectId("CATEGORY_ID_3")
+    name: "Epson WorkForce WF-7830",
+    manufacturer: "Epson",
+    paperFormat: "A3",
+    colors: 4,
+    price: 649.99,
+    categoryId: ObjectId("6a0463e7706582a2d944ba90")
   },
 
   {
     name: "Brother HL-L2370DN",
-    quantity: 12,
-    price: 320,
     manufacturer: "Brother",
-    format: "A4",
-    categoryId: ObjectId("CATEGORY_ID_1")
+    paperFormat: "A4",
+    colors: 1,
+    price: 320,
+    categoryId: ObjectId("6a0463e7706582a2d944ba8e")
   },
 
   {
-    name: "HP DesignJet T650",
-    quantity: 4,
-    price: 1200,
-    manufacturer: "HP",
-    format: "A1",
-    categoryId: ObjectId("CATEGORY_ID_4")
+    name: "Brother DCP-T720DW",
+    manufacturer: "Brother",
+    paperFormat: "A4",
+    colors: 4,
+    price: 410,
+    categoryId: ObjectId("6a0463e7706582a2d944ba90")
   },
 
   {
-    name: "Canon SELPHY CP1500",
-    quantity: 8,
+    name: "Anycubic Kobra 2",
+    manufacturer: "Anycubic",
+    paperFormat: "A3",
+    colors: 1,
+    price: 450,
+    categoryId: ObjectId("6a0463e7706582a2d944ba91")
+  },
+
+  {
+    name: "Creality Ender 3 V3",
+    manufacturer: "Creality",
+    paperFormat: "A3",
+    colors: 1,
+    price: 520,
+    categoryId: ObjectId("6a0463e7706582a2d944ba91")
+  },
+
+  {
+    name: "Xerox Phaser 3020",
+    manufacturer: "Xerox",
+    paperFormat: "A4",
+    colors: 1,
     price: 180,
-    manufacturer: "Canon",
-    format: "Photo",
-    categoryId: ObjectId("CATEGORY_ID_5")
+    categoryId: ObjectId("6a0463e7706582a2d944ba8e")
+  },
+
+  {
+    name: "Ricoh IM C300",
+    manufacturer: "Ricoh",
+    paperFormat: "A3",
+    colors: 4,
+    price: 1200,
+    categoryId: ObjectId("6a0463e7706582a2d944ba90")
+  }
+
+])
+
+
+db.carts.insertMany([
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba89"),
+
+    products: [
+
+      {
+        productId: ObjectId("6a046461706582a2d944ba92"),
+        name: "HP LaserJet Pro M404",
+        quantity: 1,
+        price: 299.99
+      },
+
+      {
+        productId: ObjectId("6a046461706582a2d944ba93"),
+        name: "HP Color Laser 150nw",
+        quantity: 1,
+        price: 349.99
+      }
+
+    ]
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8a"),
+
+    products: [
+
+      {
+        productId: ObjectId("6a046461706582a2d944ba94"),
+        name: "Canon PIXMA G3411",
+        quantity: 2,
+        price: 199.99
+      },
+
+      {
+        productId: ObjectId("6a046461706582a2d944ba97"),
+        name: "Brother HL-L2370DN",
+        quantity: 1,
+        price: 320
+      }
+
+    ]
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8b"),
+
+    products: [
+
+      {
+        productId: ObjectId("6a046461706582a2d944ba99"),
+        name: "Creality Ender 3 V3",
+        quantity: 1,
+        price: 520
+      },
+
+      {
+        productId: ObjectId("6a046461706582a2d944ba9c"),
+        name: "Ricoh IM C300",
+        quantity: 1,
+        price: 1200
+      }
+
+    ]
+  }
+
+])
+
+
+db.orders.insertMany([
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba89"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8c"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba92"),
+        name: "HP LaserJet Pro M404",
+        quantity: 1,
+        price: 299.99
+      }
+    ],
+
+    totalPrice: 299.99,
+    status: "processing",
+    deliveryAddress: "Amsterdam, Main Street 10",
+    orderDate: new Date("2026-01-10")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8a"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8d"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba94"),
+        name: "Canon PIXMA G3411",
+        quantity: 2,
+        price: 199.99
+      }
+    ],
+
+    totalPrice: 399.98,
+    status: "shipped",
+    deliveryAddress: "Rotterdam, Green Street 5",
+    orderDate: new Date("2026-01-15")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8b"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8c"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba99"),
+        name: "Creality Ender 3 V3",
+        quantity: 1,
+        price: 520
+      }
+    ],
+
+    totalPrice: 520,
+    status: "delivered",
+    deliveryAddress: "Utrecht, River Road 12",
+    orderDate: new Date("2026-02-01")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba89"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8d"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba97"),
+        name: "Brother HL-L2370DN",
+        quantity: 1,
+        price: 320
+      }
+    ],
+
+    totalPrice: 320,
+    status: "cancelled",
+    deliveryAddress: "Amsterdam, Main Street 10",
+    orderDate: new Date("2026-02-10")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8a"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8c"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba95"),
+        name: "Canon MAXIFY GX3040",
+        quantity: 1,
+        price: 499.99
+      }
+    ],
+
+    totalPrice: 499.99,
+    status: "processing",
+    deliveryAddress: "Rotterdam, Green Street 5",
+    orderDate: new Date("2026-02-15")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8b"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8d"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba9c"),
+        name: "Ricoh IM C300",
+        quantity: 1,
+        price: 1200
+      }
+    ],
+
+    totalPrice: 1200,
+    status: "delivered",
+    deliveryAddress: "Utrecht, River Road 12",
+    orderDate: new Date("2026-03-01")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba89"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8c"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba98"),
+        name: "Anycubic Kobra 2",
+        quantity: 1,
+        price: 450
+      }
+    ],
+
+    totalPrice: 450,
+    status: "shipped",
+    deliveryAddress: "Amsterdam, Main Street 10",
+    orderDate: new Date("2026-03-05")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8a"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8d"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba96"),
+        name: "Epson WorkForce WF-7830",
+        quantity: 1,
+        price: 649.99
+      }
+    ],
+
+    totalPrice: 649.99,
+    status: "processing",
+    deliveryAddress: "Rotterdam, Green Street 5",
+    orderDate: new Date("2026-03-10")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba8b"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8c"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba9b"),
+        name: "Xerox Phaser 3020",
+        quantity: 3,
+        price: 180
+      }
+    ],
+
+    totalPrice: 540,
+    status: "delivered",
+    deliveryAddress: "Utrecht, River Road 12",
+    orderDate: new Date("2026-03-15")
+  },
+
+  {
+    customerId: ObjectId("6a046377706582a2d944ba89"),
+    employeeId: ObjectId("6a0463ae706582a2d944ba8d"),
+
+    products: [
+      {
+        productId: ObjectId("6a046461706582a2d944ba93"),
+        name: "HP Color Laser 150nw",
+        quantity: 2,
+        price: 349.99
+      }
+    ],
+
+    totalPrice: 699.98,
+    status: "processing",
+    deliveryAddress: "Amsterdam, Main Street 10",
+    orderDate: new Date("2026-04-01")
   }
 
 ])

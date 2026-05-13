@@ -16,8 +16,6 @@ db.createCollection("categories", {
   validationAction: "error"
 })
 
-
-
 db.createCollection("products", {
   validator: {
     $jsonSchema: {
@@ -153,7 +151,7 @@ db.createCollection("orders", {
 
       required: [
         "customerId",
-        "employeerId",
+        "employeeId",
         "products",
         "totalPrice",
         "status",
