@@ -1,0 +1,75 @@
+db.categories.insertMany([
+  { name: "Laser Printers" },
+  { name: "Inkjet Printers" },
+  { name: "3D Printers" },
+  { name: "Office Printers" },
+  { name: "Photo Printers" }
+])
+
+
+db.products.insertMany([
+
+  {
+    name: "HP LaserJet Pro M404",
+    quantity: 15,
+    price: 299.99,
+    manufacturer: "HP",
+    format: "A4",
+    categoryId: ObjectId("CATEGORY_ID_1")
+  },
+
+  {
+    name: "Canon PIXMA G3411",
+    quantity: 20,
+    price: 199.99,
+    manufacturer: "Canon",
+    format: "A4",
+    categoryId: ObjectId("CATEGORY_ID_2")
+  },
+
+  {
+    name: "Epson EcoTank L3250",
+    quantity: 10,
+    price: 249.99,
+    manufacturer: "Epson",
+    format: "A4",
+    categoryId: ObjectId("CATEGORY_ID_2")
+  },
+
+  {
+    name: "Anycubic Kobra 2",
+    quantity: 5,
+    price: 450,
+    manufacturer: "Anycubic",
+    format: "A3",
+    categoryId: ObjectId("CATEGORY_ID_3")
+  },
+
+  {
+    name: "Brother HL-L2370DN",
+    quantity: 12,
+    price: 320,
+    manufacturer: "Brother",
+    format: "A4",
+    categoryId: ObjectId("CATEGORY_ID_1")
+  },
+
+  {
+    name: "HP DesignJet T650",
+    quantity: 4,
+    price: 1200,
+    manufacturer: "HP",
+    format: "A1",
+    categoryId: ObjectId("CATEGORY_ID_4")
+  },
+
+  {
+    name: "Canon SELPHY CP1500",
+    quantity: 8,
+    price: 180,
+    manufacturer: "Canon",
+    format: "Photo",
+    categoryId: ObjectId("CATEGORY_ID_5")
+  }
+
+])
