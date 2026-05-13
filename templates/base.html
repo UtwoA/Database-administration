@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Printer Shop{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/?role={{ role }}&client_id={{ client_id }}">
+      <span class="brand-mark">PS</span>
+      <span>
+        Printer Shop
+        <small>MongoDB study stand</small>
+      </span>
+    </a>
+    <nav class="nav">
+      <a href="/?role={{ role }}&client_id={{ client_id }}">Catalog</a>
+      <a href="/cart?role={{ role }}&client_id={{ client_id }}">Cart</a>
+      <a href="/orders?role={{ role }}&client_id={{ client_id }}">Orders</a>
+      <a href="/manager/products?role={{ role }}&client_id={{ client_id }}">Products</a>
+      <a href="/manager/analytics?role={{ role }}&client_id={{ client_id }}">Analytics</a>
+      <a href="/docs">API</a>
+    </nav>
+    <form class="session" method="get" action="{{ request.url.path }}">
+      <label>
+        Role
+        <select name="role">
+          {% for item in roles %}
+            <option value="{{ item }}" {% if item == role %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Client
+        <input type="text" name="client_id" value="{{ client_id }}" placeholder="client id">
+      </label>
+      <button type="submit">Apply</button>
+    </form>
+  </header>
+
+  <main class="page">
+    {% if message %}
+      <div class="notice">{{ message }}</div>
+    {% endif %}
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

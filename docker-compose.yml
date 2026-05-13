@@ -1,19 +1,16 @@
-version: '3.9'
-
 services:
 
   mongodb:
-    image: mongo:7
-    container_name: printer_store_mongo
+    image: ${MONGO_IMAGE}
+    container_name: ${MONGO_CONTAINER_NAME}
 
     restart: always
 
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT}:27017"
 
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin123
+    env_file:
+      - .env
 
     volumes:
       - mongo_data:/data/db
@@ -22,18 +19,16 @@ services:
       - mongo_network
 
   mongo-express:
-    image: mongo-express:latest
-    container_name: printer_store_express
+    image: ${MONGO_EXPRESS_IMAGE}
+    container_name: ${MONGO_EXPRESS_CONTAINER_NAME}
 
     restart: always
 
     ports:
-      - "8081:8081"
+      - "${MONGO_EXPRESS_PORT}:8081"
 
-    environment:
-      ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: pass
+    env_file:
+      - .env
 
     depends_on:
       - mongodb

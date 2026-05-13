@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Printer Shop Orders{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Customer history</p>
+      <h1>Orders</h1>
+    </div>
+    <span class="data-pill">{{ orders|length }} records</span>
+  </div>
+
+  <div class="order-list">
+    {% for order in orders %}
+      <article class="order-card">
+        <div class="order-head">
+          <strong>{{ order.id }}</strong>
+          <span class="badge">{{ order.status }}</span>
+        </div>
+        <p>Total: {{ "%.2f"|format(order.total) }}</p>
+        <p>Created: {{ order.created_at }}</p>
+        <ul>
+          {% for item in order.items %}
+            <li>{{ item.name }} x {{ item.quantity }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+    {% else %}
+      <div class="empty">No orders found.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

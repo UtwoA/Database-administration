@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Printer Shop Analytics{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Manager panel</p>
+  <h1>Analytics</h1>
+  <form class="analytics-filter" method="get" action="/manager/analytics">
+    <input type="hidden" name="role" value="{{ role }}">
+    <input type="hidden" name="client_id" value="{{ client_id }}">
+    <label>Months<input type="number" name="months" min="1" max="36" value="{{ filters.months }}"></label>
+    <label>Min orders<input type="number" name="min_orders" min="0" value="{{ filters.min_orders }}"></label>
+    <label>From<input type="date" name="from_date" value="{{ filters.from_date }}"></label>
+    <label>To<input type="date" name="to_date" value="{{ filters.to_date }}"></label>
+    <label>Unsold date<input type="date" name="target_date" value="{{ filters.target_date }}"></label>
+    <button type="submit">Refresh</button>
+  </form>
+</section>
+
+<section class="analytics-grid">
+  <article class="panel">
+    <h2>Top sales</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead>
+        <tbody>
+          {% for item in analytics["top_sales"] %}
+            <tr><td>{{ item.name }}</td><td>{{ item.quantity_sold }}</td><td>{{ "%.2f"|format(item.revenue) }}</td></tr>
+          {% else %}
+            <tr><td colspan="3">No data.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel">
+    <h2>Active clients</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Client</th><th>Orders</th><th>Total</th></tr></thead>
+        <tbody>
+          {% for item in analytics["active_clients"] %}
+            <tr><td>{{ item.client_id }}</td><td>{{ item.orders_count }}</td><td>{{ "%.2f"|format(item.total_spent) }}</td></tr>
+          {% else %}
+            <tr><td colspan="3">No data.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel">
+    <h2>Category demand</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Category</th><th>Qty</th><th>Revenue</th></tr></thead>
+        <tbody>
+          {% for item in analytics["categories_demand"] %}
+            <tr><td>{{ item.category_id }}</td><td>{{ item.quantity_sold }}</td><td>{{ "%.2f"|format(item.revenue) }}</td></tr>
+          {% else %}
+            <tr><td colspan="3">No data.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel">
+    <h2>Unsold products</h2>
+    <ul class="plain-list">
+      {% for product in analytics["unsold_products"] %}
+        <li>{{ product.name }} <span>{{ product.manufacturer }}</span></li>
+      {% else %}
+        <li>No data.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="section-head">
+    <h2>Order statuses</h2>
+    <span>{{ analytics["orders"]|length }} latest</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Order</th><th>Client</th><th>Total</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for order in analytics["orders"] %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.client_id }}</td>
+            <td>{{ "%.2f"|format(order.total) }}</td>
+            <td>{{ order.status }}</td>
+            <td>
+              <form class="status-form" method="post" action="/manager/orders/{{ order.id }}/status">
+                <input type="hidden" name="role" value="{{ role }}">
+                <input type="hidden" name="client_id" value="{{ client_id }}">
+                <select name="status">
+                  {% for item in ["created", "paid", "shipped", "completed", "cancelled"] %}
+                    <option value="{{ item }}" {% if item == order.status %}selected{% endif %}>{{ item }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit">Save</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5">No orders.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

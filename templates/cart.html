@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Printer Shop Cart{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Customer workspace</p>
+      <h1>Cart</h1>
+    </div>
+    <span class="data-pill">{{ cart["items"]|length }} items</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart["items"] %}
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ "%.2f"|format(item.price) }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ "%.2f"|format(item.subtotal) }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4">Cart is empty.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="summary">
+    <strong>Total: {{ "%.0f"|format(cart.total) }} RUB</strong>
+    <form method="post" action="/orders/create">
+      <input type="hidden" name="role" value="{{ role }}">
+      <input type="hidden" name="client_id" value="{{ client_id }}">
+      <button type="submit" {% if not cart["items"] or not can(role, "create_order") %}disabled{% endif %}>Create order</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

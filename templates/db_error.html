@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MongoDB unavailable</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+  <main class="page">
+    <section class="panel db-error">
+      <h1>MongoDB is unavailable</h1>
+      <p>The web interface is ready, but the database server is not accepting connections yet.</p>
+      <div class="notice">Start MongoDB on `localhost:27017` or update `MONGO_URI` in `.env`.</div>
+      <pre>{{ error }}</pre>
+      <a class="button-link" href="/docs">Open API docs</a>
+    </section>
+  </main>
+</body>
+</html>

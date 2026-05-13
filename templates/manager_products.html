@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Manage Printer Products{% endblock %}
+
+{% block content %}
+<section class="manager-layout">
+  <form class="panel product-form" method="post" action="/manager/products">
+    <p class="eyebrow">Manager panel</p>
+    <h1>New printer</h1>
+    <input type="hidden" name="role" value="{{ role }}">
+    <input type="hidden" name="client_id" value="{{ client_id }}">
+    <label>Name<input name="name" required></label>
+    <label>Category
+      <select name="category_id" required>
+        {% for category in categories %}
+          <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="split">
+      <label>Price<input type="number" name="price" min="0" step="1" required></label>
+      <label>Stock<input type="number" name="quantity" min="0" step="1" required></label>
+    </div>
+    <label>Manufacturer<input name="manufacturer"></label>
+    <div class="split">
+      <label>Technology
+        <select name="technology" required>
+          {% for item in ["Laser", "Inkjet", "LED", "3D"] %}
+            <option value="{{ item }}">{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Paper
+        <select name="paper_format" required>
+          {% for item in ["A4", "A3", "A5"] %}
+            <option value="{{ item }}">{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="split">
+      <label>Speed<input name="print_speed" placeholder="22 ppm"></label>
+      <label>Colors<input type="number" name="colors_number" min="1" value="1" required></label>
+    </div>
+    <div class="split">
+      <label>Resolution<input name="resolution" placeholder="1200x1200"></label>
+      <label>Tray<input name="tray_capacity" placeholder="250"></label>
+    </div>
+    <button type="submit" {% if not can(role, "manage_products") %}disabled{% endif %}>Create</button>
+  </form>
+
+  <section class="panel">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Inventory</p>
+        <h1>Products</h1>
+      </div>
+      <span class="data-pill">{{ products|length }} items</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Maker</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.manufacturer }}</td>
+              <td>{{ "%.2f"|format(product.price) }}</td>
+              <td>{{ product.quantity }}</td>
+              <td>
+                <form method="post" action="/manager/products/{{ product.id }}/delete">
+                  <input type="hidden" name="role" value="{{ role }}">
+                  <input type="hidden" name="client_id" value="{{ client_id }}">
+                  <button class="danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5">No products.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+{% endblock %}

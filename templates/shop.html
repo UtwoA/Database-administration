@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Printer Shop Catalog{% endblock %}
+
+{% block content %}
+<section class="stand-overview">
+  <div>
+    <p class="eyebrow">Educational MongoDB storefront</p>
+    <h1>Printer inventory, carts, orders, and analytics in one local stand.</h1>
+  </div>
+  <div class="stand-metrics">
+    <div><strong>{{ products|length }}</strong><span>shown</span></div>
+    <div><strong>{{ categories|length }}</strong><span>categories</span></div>
+    <div><strong>{{ role }}</strong><span>role</span></div>
+  </div>
+</section>
+
+<section class="layout">
+  <aside class="filters">
+    <div class="panel-title">
+      <h2>Filters</h2>
+      <span>Catalog query</span>
+    </div>
+    <form method="get" action="/">
+      <input type="hidden" name="role" value="{{ role }}">
+      <input type="hidden" name="client_id" value="{{ client_id }}">
+
+      <label>
+        Search
+        <input type="search" name="q" value="{{ filters.q }}" placeholder="LaserJet, Epson, toner">
+      </label>
+
+      <label>
+        Category
+        <select name="category_id">
+          <option value="">All categories</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}" {% if filters.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="split">
+        <label>
+          Min price
+          <input type="number" name="min_price" min="0" step="1" value="{{ filters.min_price }}">
+        </label>
+        <label>
+          Max price
+          <input type="number" name="max_price" min="0" step="1" value="{{ filters.max_price }}">
+        </label>
+      </div>
+
+      <label>
+        Manufacturer
+        <input type="text" name="manufacturer" value="{{ filters.manufacturer }}" placeholder="HP, Canon, Epson">
+      </label>
+
+      <label>
+        Technology
+        <select name="technology">
+          <option value="">Any</option>
+          {% for item in ["Laser", "Inkjet", "LED", "3D"] %}
+            <option value="{{ item }}" {% if filters.technology == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Paper format
+        <select name="paper_format">
+          <option value="">Any</option>
+          {% for item in ["A0", "A1", "A2", "A3", "A4", "A5"] %}
+            <option value="{{ item }}" {% if filters.paper_format == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <button type="submit">Find printers</button>
+    </form>
+  </aside>
+
+  <section class="catalog">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">MongoDB-backed catalog</p>
+        <h2>{{ products|length }} printers and supplies</h2>
+      </div>
+      <span class="data-pill">Live query</span>
+    </div>
+    <div class="product-grid">
+      {% for product in products %}
+        <article class="product-card">
+          <div class="printer-art" aria-hidden="true">
+            <div class="printer-top"></div>
+            <div class="printer-body">
+              <span></span>
+              <span></span>
+            </div>
+            <div class="printer-paper"></div>
+          </div>
+          <div>
+            <p class="maker">{{ product.manufacturer or "Unknown" }}</p>
+            <h3>{{ product.name }}</h3>
+          </div>
+          <dl class="specs">
+            <div><dt>Technology</dt><dd>{{ product.characteristics.technology or "-" }}</dd></div>
+            <div><dt>Format</dt><dd>{{ product.characteristics.paper_format or "-" }}</dd></div>
+            <div><dt>Speed</dt><dd>{{ product.characteristics.print_speed or "-" }}</dd></div>
+            <div><dt>Resolution</dt><dd>{{ product.characteristics.resolution or "-" }}</dd></div>
+          </dl>
+          <div class="buy-row">
+            <strong>{{ "%.0f"|format(product.price) }} RUB</strong>
+            <span>{{ product.quantity }} in stock</span>
+          </div>
+          <form method="post" action="/cart/items" class="inline-form">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="client_id" value="{{ client_id }}">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="number" name="quantity" min="1" value="1" aria-label="Quantity">
+            <button type="submit" {% if not can(role, "manage_own_cart") or not client_id %}disabled{% endif %}>Add</button>
+          </form>
+        </article>
+      {% else %}
+        <div class="empty">No printers found.</div>
+      {% endfor %}
+    </div>
+  </section>
+</section>
+{% endblock %}
