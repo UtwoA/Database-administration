@@ -1,0 +1,17 @@
+[Unit]
+Description=Database Administration v1.0 FastAPI
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=dbadmin
+Group=dbadmin
+WorkingDirectory=/opt/database-administration/app/v1.0
+EnvironmentFile=/opt/database-administration/app/v1.0/.env
+ExecStart=/opt/database-administration/app/v1.0/.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --root-path /v1
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
