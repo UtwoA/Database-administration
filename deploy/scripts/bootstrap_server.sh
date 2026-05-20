@@ -5,7 +5,7 @@ APP_ROOT="${APP_ROOT:-/opt/database-administration/app}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 sudo apt-get update
-sudo apt-get install -y nginx python3 python3-venv python3-pip docker.io docker-compose-plugin rsync curl git
+sudo apt-get install -y nginx python3 python3-venv python3-pip docker.io docker-compose rsync curl git
 
 sudo useradd --system --home /opt/database-administration --shell /usr/sbin/nologin dbadmin 2>/dev/null || true
 
