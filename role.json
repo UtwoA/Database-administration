@@ -1,0 +1,218 @@
+db.createRole({
+
+  role: "adminRole",
+
+  privileges: [
+    {
+      resource: { db: "printer_store", collection: "" },
+      actions: [ "anyAction" ]
+    }
+  ],
+
+  roles: []
+
+})
+
+db.createUser({
+
+  user: "admin",
+  pwd: "admin123",
+
+  roles: [
+    {
+      role: "adminRole",
+      db: "printer_store"
+    }
+  ]
+
+})
+
+db.createRole({
+
+  role: "managerRole",
+
+  privileges: [
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "products"
+      },
+
+      actions: [
+        "find",
+        "insert",
+        "update",
+        "remove"
+      ]
+    },
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "orders"
+      },
+
+      actions: [
+        "find",
+        "update"
+      ]
+    },
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "categories"
+      },
+
+      actions: [
+        "find",
+        "insert",
+        "update"
+      ]
+    }
+
+  ],
+
+  roles: []
+
+})
+
+db.createUser({
+
+  user: "manager",
+  pwd: "manager123",
+
+  roles: [
+    {
+      role: "managerRole",
+      db: "printerShopDB"
+    }
+  ]
+
+})
+
+
+db.createRole({
+
+  role: "customerRole",
+
+  privileges: [
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "products"
+      },
+
+      actions: [
+        "find"
+      ]
+    },
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "categories"
+      },
+
+      actions: [
+        "find"
+      ]
+    },
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "orders"
+      },
+
+      actions: [
+        "find",
+        "insert"
+      ]
+    },
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "carts"
+      },
+
+      actions: [
+        "find",
+        "insert",
+        "update"
+      ]
+    }
+
+  ],
+
+  roles: []
+
+})
+
+
+db.createUser({
+
+  user: "customer",
+  pwd: "customer123",
+
+  roles: [
+    {
+      role: "customerRole",
+      db: "printer_store"
+    }
+  ]
+
+})
+
+
+db.createRole({
+
+  role: "guestRole",
+
+  privileges: [
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "products"
+      },
+
+      actions: [
+        "find"
+      ]
+    },
+
+    {
+      resource: {
+        db: "printer_store",
+        collection: "categories"
+      },
+
+      actions: [
+        "find"
+      ]
+    }
+
+  ],
+
+  roles: []
+
+})
+
+
+db.createUser({
+
+  user: "guest",
+  pwd: "guest123",
+
+  roles: [
+    {
+      role: "guestRole",
+      db: "printer_store"
+    }
+  ]
+
+})
