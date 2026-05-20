@@ -38,7 +38,7 @@
 
   <div class="summary">
     <strong>Итого: {{ "%.2f"|format(cart.total) }} RUB</strong>
-    <form method="post" action="/orders/create">
+    <form method="post" action="{{ app_path('/orders/create') }}">
       <input type="hidden" name="role" value="{{ role }}">
       <input type="hidden" name="client_id" value="{{ client_id }}">
       <button type="submit" {% if not cart["items"] or not can(role, "create_order") %}disabled{% endif %}>Оформить заказ</button>

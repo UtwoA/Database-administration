@@ -3,7 +3,7 @@
 
 {% block content %}
 <section class="manager-layout">
-  <form class="panel product-form" method="post" action="/manager/products">
+  <form class="panel product-form" method="post" action="{{ app_path('/manager/products') }}">
     <p class="eyebrow">Панель менеджера</p>
     <h1>Создать товар</h1>
     <input type="hidden" name="role" value="{{ role }}">
@@ -75,7 +75,7 @@
               <td>{{ "%.2f"|format(product.price) }}</td>
               <td>{{ product.quantity }}</td>
               <td>
-                <form method="post" action="/manager/products/{{ product.id }}/delete">
+                <form method="post" action="{{ app_path('/manager/products/' ~ product.id ~ '/delete') }}">
                   <input type="hidden" name="role" value="{{ role }}">
                   <input type="hidden" name="client_id" value="{{ client_id }}">
                   <button class="danger" type="submit">Удалить</button>

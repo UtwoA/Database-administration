@@ -5,7 +5,7 @@
 <section class="panel">
   <p class="eyebrow">Панель менеджера</p>
   <h1>Аналитика</h1>
-  <form class="analytics-filter" method="get" action="/manager/analytics">
+  <form class="analytics-filter" method="get" action="{{ app_path('/manager/analytics') }}">
     <input type="hidden" name="role" value="{{ role }}">
     <input type="hidden" name="client_id" value="{{ client_id }}">
     <label>Месяцы<input type="number" name="months" min="1" max="36" value="{{ filters.months }}"></label>
@@ -94,7 +94,7 @@
             <td>{{ "%.2f"|format(order.total) }}</td>
             <td>{{ order.status }}</td>
             <td>
-              <form class="status-form" method="post" action="/manager/orders/{{ order.id }}/status">
+              <form class="status-form" method="post" action="{{ app_path('/manager/orders/' ~ order.id ~ '/status') }}">
                 <input type="hidden" name="role" value="{{ role }}">
                 <input type="hidden" name="client_id" value="{{ client_id }}">
                 <select name="status">

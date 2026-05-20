@@ -45,22 +45,26 @@ ROLE_GUIDES = {
 SESSION_PRESETS = [
     {
         "label": "Каталог как гость",
-        "href": "/?role=guest",
+        "path": "/",
+        "params": {"role": "guest"},
         "caption": "Просмотр каталога без client_id",
     },
     {
         "label": "Покупатель Demo Client",
-        "href": "/?role=user&client_id=665000000000000000000201",
+        "path": "/",
+        "params": {"role": "user", "client_id": "665000000000000000000201"},
         "caption": "Корзина и заказы тестового клиента",
     },
     {
         "label": "Менеджер",
-        "href": "/manager/products?role=manager",
-        "caption": "Товары, статусы заказов, аналитика",
+        "path": "/manager/products",
+        "params": {"role": "manager"},
+        "caption": "Товары, статусы заказов и аналитика",
     },
     {
         "label": "Администратор",
-        "href": "/admin/clients?role=admin",
+        "path": "/admin/clients",
+        "params": {"role": "admin"},
         "caption": "Управление клиентами и полный доступ",
     },
 ]
@@ -88,27 +92,48 @@ def page_url(path: str, **params: Any) -> str:
     return f"{path}?{urlencode(clean)}"
 
 
-def forbidden_redirect(role: str, client_id: str = "") -> RedirectResponse:
-    return RedirectResponse(page_url("/", role=role, client_id=client_id, error="forbidden"), status_code=303)
+def app_url(root_path: str, path: str, **params: Any) -> str:
+    return f"{root_path}{page_url(path, **params)}"
 
 
-def require_page_permission(role: str, permission: str, client_id: str = "") -> RedirectResponse | None:
+def make_app_path(root_path: str):
+    def helper(path: str, **params: Any) -> str:
+        return app_url(root_path, path, **params)
+
+    return helper
+
+
+def redirect_to(request: Request, path: str, status_code: int = 303, **params: Any) -> RedirectResponse:
+    return RedirectResponse(app_url(request.scope.get("root_path", ""), path, **params), status_code=status_code)
+
+
+def forbidden_redirect(request: Request, role: str, client_id: str = "") -> RedirectResponse:
+    return redirect_to(request, "/", role=role, client_id=client_id, error="forbidden")
+
+
+def require_page_permission(request: Request, role: str, permission: str, client_id: str = "") -> RedirectResponse | None:
     if can(role, permission):
         return None
-    return forbidden_redirect(role, client_id)
+    return forbidden_redirect(request, role, client_id)
 
 
 def render(request: Request, template: str, context: dict[str, Any]):
     role = role_or_default(context.get("role"))
+    root_path = request.scope.get("root_path", "")
+    app_path = make_app_path(root_path)
     base_context = {
         "request": request,
         "role": role,
         "roles": list(ROLE_PERMISSIONS.keys()),
         "role_guide": ROLE_GUIDES[role],
-        "session_presets": SESSION_PRESETS,
+        "session_presets": [
+            {**preset, "href": app_path(preset["path"], **preset["params"])}
+            for preset in SESSION_PRESETS
+        ],
         "demo_clients": DEMO_CLIENTS,
         "client_id": context.get("client_id") or "",
         "can": can,
+        "app_path": app_path,
         "message": context.get("message"),
         "error": context.get("error"),
     }
@@ -175,12 +200,12 @@ def add_cart_item_page(
 ):
     role = role_or_default(role)
     if not can(role, "manage_own_cart"):
-        return RedirectResponse(page_url("/", role=role, client_id=client_id, error="forbidden"), status_code=303)
+        return redirect_to(request, "/", role=role, client_id=client_id, error="forbidden")
     try:
         repo.add_cart_item(client_id, product_id, quantity)
     except HTTPException as exc:
-        return RedirectResponse(page_url("/", role=role, client_id=client_id, error=exc.detail), status_code=303)
-    return RedirectResponse(page_url("/cart", role=role, client_id=client_id, message="added"), status_code=303)
+        return redirect_to(request, "/", role=role, client_id=client_id, error=exc.detail)
+    return redirect_to(request, "/cart", role=role, client_id=client_id, message="added")
 
 
 @router.get("/cart")
@@ -193,7 +218,7 @@ def cart_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    redirect = require_page_permission(role, "manage_own_cart", client_id)
+    redirect = require_page_permission(request, role, "manage_own_cart", client_id)
     if redirect:
         return redirect
     cart = {"items": [], "total": 0}
@@ -207,18 +232,19 @@ def cart_page(
 
 @router.post("/orders/create")
 def create_order_page(
+    request: Request,
     client_id: str = Form(...),
     role: str = Form("user"),
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
     if not can(role, "create_order"):
-        return RedirectResponse(page_url("/cart", role=role, client_id=client_id, error="forbidden"), status_code=303)
+        return redirect_to(request, "/cart", role=role, client_id=client_id, error="forbidden")
     try:
         repo.create_order_from_cart(client_id)
     except HTTPException as exc:
-        return RedirectResponse(page_url("/cart", role=role, client_id=client_id, error=exc.detail), status_code=303)
-    return RedirectResponse(page_url("/orders", role=role, client_id=client_id, message="created"), status_code=303)
+        return redirect_to(request, "/cart", role=role, client_id=client_id, error=exc.detail)
+    return redirect_to(request, "/orders", role=role, client_id=client_id, message="created")
 
 
 @router.get("/orders")
@@ -231,7 +257,7 @@ def orders_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    redirect = require_page_permission(role, "read_own_orders", client_id)
+    redirect = require_page_permission(request, role, "read_own_orders", client_id)
     if redirect:
         return redirect
     orders = []
@@ -253,7 +279,7 @@ def manager_products_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    redirect = require_page_permission(role, "manage_products", client_id)
+    redirect = require_page_permission(request, role, "manage_products", client_id)
     if redirect:
         return redirect
     products = repo.list_products()
@@ -267,6 +293,7 @@ def manager_products_page(
 
 @router.post("/manager/products")
 def create_product_page(
+    request: Request,
     role: str = Form("manager"),
     client_id: str = Form(""),
     name: str = Form(...),
@@ -284,7 +311,7 @@ def create_product_page(
 ):
     role = role_or_default(role)
     if not can(role, "manage_products"):
-        return RedirectResponse(page_url("/manager/products", role=role, client_id=client_id, error="forbidden"), status_code=303)
+        return redirect_to(request, "/manager/products", role=role, client_id=client_id, error="forbidden")
     characteristics = {
         key: value
         for key, value in {
@@ -307,11 +334,12 @@ def create_product_page(
             "characteristics": characteristics,
         }
     )
-    return RedirectResponse(page_url("/manager/products", role=role, client_id=client_id, message="product-created"), status_code=303)
+    return redirect_to(request, "/manager/products", role=role, client_id=client_id, message="product-created")
 
 
 @router.post("/manager/products/{product_id}/delete")
 def delete_product_page(
+    request: Request,
     product_id: str,
     role: str = Form("manager"),
     client_id: str = Form(""),
@@ -319,13 +347,14 @@ def delete_product_page(
 ):
     role = role_or_default(role)
     if not can(role, "manage_products"):
-        return forbidden_redirect(role, client_id)
+        return forbidden_redirect(request, role, client_id)
     repo.delete_product(product_id)
-    return RedirectResponse(page_url("/manager/products", role=role, client_id=client_id), status_code=303)
+    return redirect_to(request, "/manager/products", role=role, client_id=client_id)
 
 
 @router.post("/manager/orders/{order_id}/status")
 def update_order_status_page(
+    request: Request,
     order_id: str,
     status: str = Form(...),
     role: str = Form("manager"),
@@ -334,9 +363,9 @@ def update_order_status_page(
 ):
     role = role_or_default(role)
     if not can(role, "update_order_status"):
-        return forbidden_redirect(role, client_id)
+        return forbidden_redirect(request, role, client_id)
     repo.update_order_status(order_id, status)
-    return RedirectResponse(page_url("/manager/analytics", role=role, client_id=client_id), status_code=303)
+    return redirect_to(request, "/manager/analytics", role=role, client_id=client_id)
 
 
 @router.get("/manager/analytics")
@@ -352,7 +381,7 @@ def manager_analytics_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    redirect = require_page_permission(role, "read_analytics", client_id)
+    redirect = require_page_permission(request, role, "read_analytics", client_id)
     if redirect:
         return redirect
     analytics = {
@@ -390,7 +419,7 @@ def admin_clients_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    redirect = require_page_permission(role, "manage_users", client_id)
+    redirect = require_page_permission(request, role, "manage_users", client_id)
     if redirect:
         return redirect
     return render(
@@ -408,6 +437,7 @@ def admin_clients_page(
 
 @router.post("/admin/clients")
 def create_client_page(
+    request: Request,
     role: str = Form("admin"),
     client_id: str = Form(""),
     first_name: str = Form(...),
@@ -418,7 +448,7 @@ def create_client_page(
 ):
     role = role_or_default(role)
     if not can(role, "manage_users"):
-        return forbidden_redirect(role, client_id)
+        return forbidden_redirect(request, role, client_id)
     repo.create_client(
         {
             "first_name": first_name,
@@ -427,11 +457,12 @@ def create_client_page(
             "phone": phone,
         }
     )
-    return RedirectResponse(page_url("/admin/clients", role=role, client_id=client_id, message="client-created"), status_code=303)
+    return redirect_to(request, "/admin/clients", role=role, client_id=client_id, message="client-created")
 
 
 @router.post("/admin/clients/{managed_client_id}/edit")
 def update_client_page(
+    request: Request,
     managed_client_id: str,
     role: str = Form("admin"),
     client_id: str = Form(""),
@@ -443,7 +474,7 @@ def update_client_page(
 ):
     role = role_or_default(role)
     if not can(role, "manage_users"):
-        return forbidden_redirect(role, client_id)
+        return forbidden_redirect(request, role, client_id)
     repo.update_client(
         managed_client_id,
         {
@@ -453,11 +484,12 @@ def update_client_page(
             "phone": phone,
         },
     )
-    return RedirectResponse(page_url("/admin/clients", role=role, client_id=client_id, message="client-updated"), status_code=303)
+    return redirect_to(request, "/admin/clients", role=role, client_id=client_id, message="client-updated")
 
 
 @router.post("/admin/clients/{managed_client_id}/delete")
 def delete_client_page(
+    request: Request,
     managed_client_id: str,
     role: str = Form("admin"),
     client_id: str = Form(""),
@@ -465,6 +497,6 @@ def delete_client_page(
 ):
     role = role_or_default(role)
     if not can(role, "manage_users"):
-        return forbidden_redirect(role, client_id)
+        return forbidden_redirect(request, role, client_id)
     repo.delete_client(managed_client_id)
-    return RedirectResponse(page_url("/admin/clients", role=role, client_id=client_id, message="client-deleted"), status_code=303)
+    return redirect_to(request, "/admin/clients", role=role, client_id=client_id, message="client-deleted")
