@@ -1,0 +1,53 @@
+name: Deploy v1.0
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "v1.0/**"
+      - "portal/**"
+      - "deploy/**"
+      - ".github/workflows/deploy.yml"
+      - "README.md"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        run: |
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_USER"
+          test -n "$DEPLOY_SSH_KEY"
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${DEPLOY_PORT:-22}" "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Sync repository to server
+        run: |
+          rsync -az --delete \
+            --exclude ".git" \
+            --exclude "v1.0/.venv" \
+            --exclude "v1.0/uvicorn.log" \
+            --exclude "v1.0/uvicorn.err.log" \
+            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:/opt/database-administration/app/"
+
+      - name: Run remote deployment
+        run: |
+          ssh -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "APP_ROOT=/opt/database-administration/app bash /opt/database-administration/app/deploy/scripts/deploy_v1.sh"
