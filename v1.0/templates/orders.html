@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Printer Shop Orders{% endblock %}
+{% block title %}Заказы Printer Shop{% endblock %}
 
 {% block content %}
 <section class="panel">
   <div class="section-head">
     <div>
       <p class="eyebrow">Customer history</p>
-      <h1>Orders</h1>
+      <h1>Заказы</h1>
     </div>
-    <span class="data-pill">{{ orders|length }} records</span>
+    <span class="data-pill">{{ orders|length }} записей</span>
   </div>
 
   <div class="order-list">
@@ -18,8 +18,8 @@
           <strong>{{ order.id }}</strong>
           <span class="badge">{{ order.status }}</span>
         </div>
-        <p>Total: {{ "%.2f"|format(order.total) }}</p>
-        <p>Created: {{ order.created_at }}</p>
+        <p>Сумма: {{ "%.2f"|format(order.total) }}</p>
+        <p>Создан: {{ order.created_at }}</p>
         <ul>
           {% for item in order["items"] %}
             <li>{{ item.name }} x {{ item.quantity }}</li>
@@ -27,7 +27,7 @@
         </ul>
       </article>
     {% else %}
-      <div class="empty">No orders found.</div>
+        <div class="empty">Заказы не найдены.</div>
     {% endfor %}
   </div>
 </section>
