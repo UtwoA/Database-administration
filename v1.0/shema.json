@@ -3,289 +3,127 @@ db.createCollection("categories", {
     $jsonSchema: {
       bsonType: "object",
       required: ["name"],
-
       properties: {
-        name: {
-          bsonType: "string",
-          minLength: 3,
-        },
-      }
-    }
+        name: { bsonType: "string", minLength: 3 },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
+  validationAction: "error",
+});
 
 db.createCollection("products", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: [
-        "name",
-        "manufacturer",
-        "paperFormat",
-        "colors",
-        "price",
-        "categoryId"
-      ],
-
+      required: ["name", "manufacturer", "technology", "paperFormat", "colors", "price", "categoryId"],
       properties: {
-
-        name: {
-          bsonType: "string",
-          minLength: 3
-        },
-
-        manufacturer: {
-          bsonType: "string"
-        },
-
-        paperFormat: {
-          enum: ["A4", "A3", "A5"]
-        },
-
-        colors: {
-          bsonType: "int",
-          minimum: 1
-        },
-
-        price: {
-          bsonType: ["int", "double"],
-          minimum: 0
-        },
-
-        categoryId: {
-          bsonType: "objectId"
-        }
-      }
-    }
+        name: { bsonType: "string", minLength: 3 },
+        manufacturer: { bsonType: "string" },
+        technology: { enum: ["Laser", "Inkjet", "LED", "3D"] },
+        paperFormat: { enum: ["A4", "A3", "A5"] },
+        colors: { bsonType: "int", minimum: 1 },
+        price: { bsonType: ["int", "double"], minimum: 0 },
+        quantity: { bsonType: "int", minimum: 0 },
+        categoryId: { bsonType: "objectId" },
+        characteristics: { bsonType: "object" },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
-
+  validationAction: "error",
+});
 
 db.createCollection("customers", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: [
-        "firstName",
-        "lastName",
-        "email",
-        "phone"
-      ],
-
+      required: ["firstName", "lastName", "email", "phone"],
       properties: {
-
-        firstName: {
-          bsonType: "string"
-        },
-
-        lastName: {
-          bsonType: "string"
-        },
-
-        email: {
-          bsonType: "string",
-          pattern: "^.+@.+$"
-        },
-
-        phone: {
-          bsonType: "string"
-        }
-      }
-    }
+        firstName: { bsonType: "string" },
+        lastName: { bsonType: "string" },
+        email: { bsonType: "string", pattern: "^.+@.+$" },
+        phone: { bsonType: "string" },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
+  validationAction: "error",
+});
 
 db.createCollection("employees", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-
-      required: [
-        "firstName",
-        "lastName",
-        "position",
-        "email",
-        "salary"
-      ],
-
+      required: ["firstName", "lastName", "position", "email", "salary"],
       properties: {
-
-        firstName: {
-          bsonType: "string"
-        },
-
-        lastName: {
-          bsonType: "string"
-        },
-
-        position: {
-          bsonType: "string"
-        },
-
-        email: {
-          bsonType: "string"
-        },
-
-        salary: {
-          bsonType: ["int", "double"],
-          minimum: 0
-        }
-      }
-    }
+        firstName: { bsonType: "string" },
+        lastName: { bsonType: "string" },
+        position: { bsonType: "string" },
+        email: { bsonType: "string" },
+        salary: { bsonType: ["int", "double"], minimum: 0 },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
-
+  validationAction: "error",
+});
 
 db.createCollection("orders", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-
-      required: [
-        "customerId",
-        "employeeId",
-        "products",
-        "totalPrice",
-        "status",
-        "deliveryAddress",
-        "orderDate"
-      ],
-
+      required: ["customerId", "employeeId", "products", "totalPrice", "status", "deliveryAddress", "orderDate"],
       properties: {
-
-        customerId: {
-          bsonType: "objectId"
-        },
-
-        employeeId: {
-          bsonType: "objectId"
-        },
-
+        customerId: { bsonType: "objectId" },
+        employeeId: { bsonType: "objectId" },
         products: {
           bsonType: "array",
-
           items: {
             bsonType: "object",
-
-            required: [
-              "productId",
-              "name",
-              "quantity",
-              "price"
-            ],
-
+            required: ["productId", "name", "quantity", "price"],
             properties: {
-
-              productId: {
-                bsonType: "objectId"
-              },
-
-              name: {
-                bsonType: "string"
-              },
-
-              quantity: {
-                bsonType: "int",
-                minimum: 1
-              },
-
-              price: {
-                bsonType: ["int", "double"],
-                minimum: 0
-              }
-            }
-          }
+              productId: { bsonType: "objectId" },
+              name: { bsonType: "string" },
+              quantity: { bsonType: "int", minimum: 1 },
+              price: { bsonType: ["int", "double"], minimum: 0 },
+            },
+          },
         },
-
-        totalPrice: {
-          bsonType: ["int", "double"],
-          minimum: 0
-        },
-
-        status: {
-          enum: [
-            "processing",
-            "shipped",
-            "delivered",
-            "cancelled"
-          ]
-        },
-
-        deliveryAddress: {
-          bsonType: "string"
-        },
-
-        orderDate: {
-          bsonType: "date"
-        }
-      }
-    }
+        totalPrice: { bsonType: ["int", "double"], minimum: 0 },
+        status: { enum: ["processing", "shipped", "delivered", "cancelled"] },
+        deliveryAddress: { bsonType: "string" },
+        orderDate: { bsonType: "date" },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
+  validationAction: "error",
+});
 
 db.createCollection("carts", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: [
-        "customerId",
-        "products"
-    ],
-
-        properties: {
-
-            customerId: {
-            bsonType: "objectId"
+      required: ["customerId", "products"],
+      properties: {
+        customerId: { bsonType: "objectId" },
+        products: {
+          bsonType: "array",
+          items: {
+            bsonType: "object",
+            required: ["productId", "name", "quantity", "price"],
+            properties: {
+              productId: { bsonType: "objectId" },
+              name: { bsonType: "string" },
+              quantity: { bsonType: "int", minimum: 1 },
+              price: { bsonType: ["int", "double"], minimum: 0 },
             },
-
-            products: {
-            bsonType: "array",
-
-            items: {
-                bsonType: "object",
-
-                required: [
-                "productId",
-                "name",
-                "quantity",
-                "price"
-                ],
-
-                properties: {
-
-                productId: {
-                    bsonType: "objectId"
-                },
-
-                name: {
-                    bsonType: "string"
-                },
-
-                quantity: {
-                    bsonType: "int",
-                    minimum: 1
-                },
-
-                price: {
-                    bsonType: ["int", "double"],
-                    minimum: 0
-                }
-                }
-            }
+          },
         },
+      },
     },
-    },  
-    },
+  },
   validationLevel: "strict",
-  validationAction: "error"
-})
+  validationAction: "error",
+});

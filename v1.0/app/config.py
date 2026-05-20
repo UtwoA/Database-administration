@@ -43,7 +43,7 @@ class Settings:
     order_status_field: str = _env("ORDER_STATUS_FIELD", "status")
     order_date_field: str = _env("ORDER_DATE_FIELD", "orderDate")
     order_employee_field: str = _env("ORDER_EMPLOYEE_FIELD", "employeeId")
-    order_employee_required_field: str = _env("ORDER_EMPLOYEE_REQUIRED_FIELD", "employeerId")
+    order_employee_required_field: str = _env("ORDER_EMPLOYEE_REQUIRED_FIELD", "employeeId")
     order_delivery_address_field: str = _env("ORDER_DELIVERY_ADDRESS_FIELD", "deliveryAddress")
     default_employee_id: str = _env("DEFAULT_EMPLOYEE_ID", "")
     default_delivery_address: str = _env("DEFAULT_DELIVERY_ADDRESS", "Moscow, Stromynka st., 20")

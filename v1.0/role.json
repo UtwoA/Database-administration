@@ -1,218 +1,43 @@
-db.createRole({
-
-  role: "adminRole",
-
-  privileges: [
-    {
-      resource: { db: "printer_store", collection: "" },
-      actions: [ "anyAction" ]
-    }
-  ],
-
-  roles: []
-
-})
-
-db.createUser({
-
-  user: "admin",
-  pwd: "admin123",
-
-  roles: [
-    {
-      role: "adminRole",
-      db: "printer_store"
-    }
-  ]
-
-})
+const dbName = "shop";
+db = db.getSiblingDB(dbName);
 
 db.createRole({
-
-  role: "managerRole",
-
-  privileges: [
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "products"
-      },
-
-      actions: [
-        "find",
-        "insert",
-        "update",
-        "remove"
-      ]
-    },
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "orders"
-      },
-
-      actions: [
-        "find",
-        "update"
-      ]
-    },
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "categories"
-      },
-
-      actions: [
-        "find",
-        "insert",
-        "update"
-      ]
-    }
-
-  ],
-
-  roles: []
-
-})
-
-db.createUser({
-
-  user: "manager",
-  pwd: "manager123",
-
-  roles: [
-    {
-      role: "managerRole",
-      db: "printerShopDB"
-    }
-  ]
-
-})
-
+  role: "shopAdminRole",
+  privileges: [{ resource: { db: dbName, collection: "" }, actions: ["anyAction"] }],
+  roles: [],
+});
 
 db.createRole({
-
-  role: "customerRole",
-
+  role: "shopManagerRole",
   privileges: [
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "products"
-      },
-
-      actions: [
-        "find"
-      ]
-    },
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "categories"
-      },
-
-      actions: [
-        "find"
-      ]
-    },
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "orders"
-      },
-
-      actions: [
-        "find",
-        "insert"
-      ]
-    },
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "carts"
-      },
-
-      actions: [
-        "find",
-        "insert",
-        "update"
-      ]
-    }
-
+    { resource: { db: dbName, collection: "products" }, actions: ["find", "insert", "update", "remove"] },
+    { resource: { db: dbName, collection: "categories" }, actions: ["find", "insert", "update"] },
+    { resource: { db: dbName, collection: "orders" }, actions: ["find", "update"] },
   ],
-
-  roles: []
-
-})
-
-
-db.createUser({
-
-  user: "customer",
-  pwd: "customer123",
-
-  roles: [
-    {
-      role: "customerRole",
-      db: "printer_store"
-    }
-  ]
-
-})
-
+  roles: [],
+});
 
 db.createRole({
-
-  role: "guestRole",
-
+  role: "shopUserRole",
   privileges: [
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "products"
-      },
-
-      actions: [
-        "find"
-      ]
-    },
-
-    {
-      resource: {
-        db: "printer_store",
-        collection: "categories"
-      },
-
-      actions: [
-        "find"
-      ]
-    }
-
+    { resource: { db: dbName, collection: "products" }, actions: ["find"] },
+    { resource: { db: dbName, collection: "categories" }, actions: ["find"] },
+    { resource: { db: dbName, collection: "carts" }, actions: ["find", "insert", "update"] },
+    { resource: { db: dbName, collection: "orders" }, actions: ["find", "insert"] },
   ],
+  roles: [],
+});
 
-  roles: []
+db.createRole({
+  role: "shopGuestRole",
+  privileges: [
+    { resource: { db: dbName, collection: "products" }, actions: ["find"] },
+    { resource: { db: dbName, collection: "categories" }, actions: ["find"] },
+  ],
+  roles: [],
+});
 
-})
-
-
-db.createUser({
-
-  user: "guest",
-  pwd: "guest123",
-
-  roles: [
-    {
-      role: "guestRole",
-      db: "printer_store"
-    }
-  ]
-
-})
+db.createUser({ user: "shop_admin", pwd: "admin123", roles: [{ role: "shopAdminRole", db: dbName }] });
+db.createUser({ user: "shop_manager", pwd: "manager123", roles: [{ role: "shopManagerRole", db: dbName }] });
+db.createUser({ user: "shop_user", pwd: "user123", roles: [{ role: "shopUserRole", db: dbName }] });
+db.createUser({ user: "shop_guest", pwd: "guest123", roles: [{ role: "shopGuestRole", db: dbName }] });
