@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Manage Printer Products{% endblock %}
+{% block title %}Управление товарами{% endblock %}
 
 {% block content %}
 <section class="manager-layout">
   <form class="panel product-form" method="post" action="/manager/products">
-    <p class="eyebrow">Manager panel</p>
-    <h1>New printer</h1>
+    <p class="eyebrow">Панель менеджера</p>
+    <h1>Создать товар</h1>
     <input type="hidden" name="role" value="{{ role }}">
     <input type="hidden" name="client_id" value="{{ client_id }}">
-    <label>Name<input name="name" required></label>
-    <label>Category
+    <label>Название<input name="name" required></label>
+    <label>Категория
       <select name="category_id" required>
         {% for category in categories %}
           <option value="{{ category.id }}">{{ category.name }}</option>
@@ -17,19 +17,19 @@
       </select>
     </label>
     <div class="split">
-      <label>Price<input type="number" name="price" min="0" step="1" required></label>
-      <label>Stock<input type="number" name="quantity" min="0" step="1" required></label>
+      <label>Цена<input type="number" name="price" min="0" step="1" required></label>
+      <label>Остаток<input type="number" name="quantity" min="0" step="1" required></label>
     </div>
-    <label>Manufacturer<input name="manufacturer"></label>
+    <label>Производитель<input name="manufacturer" required></label>
     <div class="split">
-      <label>Technology
+      <label>Технология
         <select name="technology" required>
           {% for item in ["Laser", "Inkjet", "LED", "3D"] %}
             <option value="{{ item }}">{{ item }}</option>
           {% endfor %}
         </select>
       </label>
-      <label>Paper
+      <label>Формат
         <select name="paper_format" required>
           {% for item in ["A4", "A3", "A5"] %}
             <option value="{{ item }}">{{ item }}</option>
@@ -38,32 +38,32 @@
       </label>
     </div>
     <div class="split">
-      <label>Speed<input name="print_speed" placeholder="22 ppm"></label>
-      <label>Colors<input type="number" name="colors_number" min="1" value="1" required></label>
+      <label>Скорость<input name="print_speed" placeholder="22 ppm"></label>
+      <label>Цветов<input type="number" name="colors_number" min="1" value="1" required></label>
     </div>
     <div class="split">
-      <label>Resolution<input name="resolution" placeholder="1200x1200"></label>
-      <label>Tray<input name="tray_capacity" placeholder="250"></label>
+      <label>Разрешение<input name="resolution" placeholder="1200x1200"></label>
+      <label>Лоток<input name="tray_capacity" placeholder="250"></label>
     </div>
-    <button type="submit" {% if not can(role, "manage_products") %}disabled{% endif %}>Create</button>
+    <button type="submit" {% if not can(role, "manage_products") %}disabled{% endif %}>Создать</button>
   </form>
 
   <section class="panel">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Inventory</p>
-        <h1>Products</h1>
+        <p class="eyebrow">Склад</p>
+        <h1>Товары</h1>
       </div>
-      <span class="data-pill">{{ products|length }} items</span>
+      <span class="data-pill">{{ products|length }} позиций</span>
     </div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Maker</th>
-            <th>Price</th>
-            <th>Stock</th>
+            <th>Название</th>
+            <th>Производитель</th>
+            <th>Цена</th>
+            <th>Остаток</th>
             <th></th>
           </tr>
         </thead>
@@ -78,12 +78,12 @@
                 <form method="post" action="/manager/products/{{ product.id }}/delete">
                   <input type="hidden" name="role" value="{{ role }}">
                   <input type="hidden" name="client_id" value="{{ client_id }}">
-                  <button class="danger" type="submit">Delete</button>
+                  <button class="danger" type="submit">Удалить</button>
                 </form>
               </td>
             </tr>
           {% else %}
-            <tr><td colspan="5">No products.</td></tr>
+            <tr><td colspan="5">Товаров пока нет.</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -62,7 +62,7 @@ class SchemaAdapter:
             "name": doc.get(s.product_name_field),
             "category_id": stringify_id(doc.get(s.product_category_field)),
             "price": float(doc.get(s.product_price_field, 0)),
-            "quantity": int(doc.get(s.product_quantity_field, 999)),
+            "quantity": int(doc.get(s.product_quantity_field, 0)),
             "manufacturer": doc.get(s.product_manufacturer_field),
             "characteristics": characteristics,
         }
@@ -80,6 +80,11 @@ class SchemaAdapter:
         if "category_id" in payload and payload["category_id"] is not None:
             doc[s.product_category_field] = parse_id(str(payload["category_id"]))
         characteristics = payload.get("characteristics") or {}
+        remaining_characteristics = {
+            key: value
+            for key, value in characteristics.items()
+            if key not in {"technology", "paper_format", "colors_number"} and value not in (None, "")
+        }
         if "technology" in characteristics:
             doc[s.product_technology_field] = characteristics["technology"]
         if "paper_format" in characteristics:
@@ -89,6 +94,8 @@ class SchemaAdapter:
                 doc[s.product_colors_field] = int(characteristics["colors_number"])
             except (TypeError, ValueError):
                 doc[s.product_colors_field] = characteristics["colors_number"]
+        if remaining_characteristics:
+            doc[s.product_characteristics_field] = remaining_characteristics
         return doc
 
     def category_to_api(self, doc: dict[str, Any]) -> dict[str, Any]:
@@ -104,8 +111,19 @@ class SchemaAdapter:
         return {
             "id": stringify_id(doc.get("_id", doc.get("id"))),
             "name": name or doc.get("name"),
+            "first_name": first_name,
+            "last_name": last_name,
             "email": doc.get(self.settings.client_email_field),
+            "phone": doc.get("phone"),
             "cart": doc.get("cart", {"items": []}),
+        }
+
+    def client_to_db(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return {
+            self.settings.client_name_field: payload.get("first_name"),
+            self.settings.client_last_name_field: payload.get("last_name"),
+            self.settings.client_email_field: payload.get("email"),
+            "phone": payload.get("phone"),
         }
 
     def order_to_api(self, doc: dict[str, Any]) -> dict[str, Any]:

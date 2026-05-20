@@ -42,6 +42,15 @@ class ShopRepository:
     def list_categories(self) -> list[dict[str, Any]]:
         return [self.adapter.category_to_api(doc) for doc in self.categories.find({})]
 
+    def list_clients(self) -> list[dict[str, Any]]:
+        cursor = self.clients.find({}).sort(
+            [
+                (self.settings.client_last_name_field, 1),
+                (self.settings.client_name_field, 1),
+            ]
+        )
+        return [self.adapter.client_to_api(doc) for doc in cursor]
+
     def list_products(
         self,
         category_id: str | None = None,
@@ -104,6 +113,38 @@ class ShopRepository:
         if result.deleted_count == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found.")
         return {"status": "deleted", "product_id": product_id}
+
+    def get_client(self, client_id: str) -> dict[str, Any]:
+        doc = self.get_client_doc(client_id)
+        return self.adapter.client_to_api(doc)
+
+    def create_client(self, payload: dict[str, Any]) -> dict[str, Any]:
+        doc = self.adapter.client_to_db(payload)
+        result = self.clients.insert_one(doc)
+        client_id = str(result.inserted_id)
+        self._get_or_create_cart_doc(client_id)
+        return self.get_client(client_id)
+
+    def update_client(self, client_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        update = {
+            key: value
+            for key, value in self.adapter.client_to_db(payload).items()
+            if value is not None
+        }
+        if not update:
+            return self.get_client(client_id)
+        result = self.clients.update_one(id_filter(client_id), {"$set": update})
+        if result.matched_count == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found.")
+        return self.get_client(client_id)
+
+    def delete_client(self, client_id: str) -> dict[str, str]:
+        client = self.get_client_doc(client_id)
+        customer_id = parse_id(client_id)
+        self.carts.delete_many({"customerId": customer_id})
+        self.orders.delete_many({self.settings.order_customer_field: {"$in": [customer_id, client_id]}})
+        self.clients.delete_one({"_id": client["_id"]})
+        return {"status": "deleted", "client_id": client_id}
 
     def get_client_doc(self, client_id: str) -> dict[str, Any]:
         doc = self.clients.find_one(id_filter(client_id))
@@ -187,7 +228,6 @@ class ShopRepository:
         order = {
             self.settings.order_customer_field: parse_id(client_id),
             self.settings.order_employee_field: employee_id,
-            self.settings.order_employee_required_field: employee_id,
             self.settings.order_products_field: products,
             self.settings.order_total_field: cart["total"],
             self.settings.order_status_field: "processing",
@@ -195,6 +235,8 @@ class ShopRepository:
             self.settings.order_date_field: now,
             "updated_at": now,
         }
+        if self.settings.order_employee_required_field != self.settings.order_employee_field:
+            order[self.settings.order_employee_required_field] = employee_id
         result = self.orders.insert_one(order)
 
         for item in cart["items"]:
@@ -284,7 +326,7 @@ class ShopRepository:
             {"$unwind": {"path": "$product_doc", "preserveNullAndEmptyArrays": True}},
             {
                 "$group": {
-                    "_id": "$product_doc.categoryId",
+                    "_id": f"$product_doc.{self.settings.product_category_field}",
                     "quantity_sold": {"$sum": f"${self.settings.order_products_field}.quantity"},
                     "revenue": {
                         "$sum": {
