@@ -57,7 +57,7 @@
         <thead><tr><th>Category</th><th>Qty</th><th>Revenue</th></tr></thead>
         <tbody>
           {% for item in analytics["categories_demand"] %}
-            <tr><td>{{ item.category_id }}</td><td>{{ item.quantity_sold }}</td><td>{{ "%.2f"|format(item.revenue) }}</td></tr>
+            <tr><td>{{ item.category_name or item.category_id }}</td><td>{{ item.quantity_sold }}</td><td>{{ "%.2f"|format(item.revenue) }}</td></tr>
           {% else %}
             <tr><td colspan="3">No data.</td></tr>
           {% endfor %}
@@ -98,7 +98,7 @@
                 <input type="hidden" name="role" value="{{ role }}">
                 <input type="hidden" name="client_id" value="{{ client_id }}">
                 <select name="status">
-                  {% for item in ["created", "paid", "shipped", "completed", "cancelled"] %}
+                  {% for item in ["processing", "shipped", "delivered", "cancelled"] %}
                     <option value="{{ item }}" {% if item == order.status %}selected{% endif %}>{{ item }}</option>
                   {% endfor %}
                 </select>

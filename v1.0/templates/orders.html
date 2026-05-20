@@ -21,7 +21,7 @@
         <p>Total: {{ "%.2f"|format(order.total) }}</p>
         <p>Created: {{ order.created_at }}</p>
         <ul>
-          {% for item in order.items %}
+          {% for item in order["items"] %}
             <li>{{ item.name }} x {{ item.quantity }}</li>
           {% endfor %}
         </ul>

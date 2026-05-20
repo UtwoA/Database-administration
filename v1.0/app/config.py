@@ -11,16 +11,7 @@ def _env(name: str, default: str) -> str:
     return os.getenv(name, default)
 
 
-def _bool_env(name: str, default: bool = False) -> bool:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return value.lower() in {"1", "true", "yes", "on"}
-
-
 class Settings:
-    use_mock_data: bool = _bool_env("USE_MOCK_DATA", False)
-
     mongo_uri: str = _env("MONGO_URI", "mongodb://localhost:27017")
     mongo_db_name: str = _env("MONGO_DB_NAME", "shop")
 

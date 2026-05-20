@@ -10,6 +10,9 @@ from app.config import Settings
 from app.schema_adapter import SchemaAdapter, date_end, date_start, id_filter, parse_id, parse_object_id
 
 
+ORDER_STATUSES = {"processing", "shipped", "delivered", "cancelled"}
+
+
 class ShopRepository:
     def __init__(self, db: Database, settings: Settings):
         self.db = db
@@ -112,16 +115,19 @@ class ShopRepository:
         if quantity <= 0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quantity must be positive.")
 
-        client = self.get_client_doc(client_id)
+        self.get_client_doc(client_id)
         product = self.get_product(product_id)
-        if product["quantity"] < quantity:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough product in stock.")
 
         cart = self._get_or_create_cart_doc(client_id)
         items = cart.get("products") or []
         item = next((x for x in items if str(x.get("productId")) == product["id"] or str(x.get("product_id")) == product["id"]), None)
+        existing_quantity = int(item.get("quantity", 0)) if item else 0
+        requested_quantity = existing_quantity + quantity
+        if product["quantity"] < requested_quantity:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough product in stock.")
+
         if item:
-            item["quantity"] = int(item.get("quantity", 0)) + quantity
+            item["quantity"] = requested_quantity
             item["price"] = product["price"]
             item["name"] = product["name"]
         else:
@@ -212,6 +218,8 @@ class ShopRepository:
         return [self.adapter.order_to_api(doc) for doc in self.orders.find({}).sort(self.settings.order_date_field, -1).limit(limit)]
 
     def update_order_status(self, order_id: str, new_status: str) -> dict[str, Any]:
+        if new_status not in ORDER_STATUSES:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid order status.")
         result = self.orders.update_one(
             id_filter(order_id),
             {"$set": {self.settings.order_status_field: new_status, "updated_at": datetime.now(timezone.utc)}},
@@ -288,9 +296,26 @@ class ShopRepository:
                     },
                 }
             },
+            {
+                "$lookup": {
+                    "from": self.settings.categories_collection,
+                    "localField": "_id",
+                    "foreignField": "_id",
+                    "as": "category_doc",
+                }
+            },
+            {"$unwind": {"path": "$category_doc", "preserveNullAndEmptyArrays": True}},
             {"$sort": {"quantity_sold": -1, "revenue": -1}},
         ]
-        return [{"category_id": str(doc.pop("_id")), **doc} for doc in self.orders.aggregate(pipeline)]
+        return [
+            {
+                "category_id": str(doc.pop("_id")),
+                "category_name": (doc.get("category_doc") or {}).get(self.settings.category_name_field),
+                "quantity_sold": doc["quantity_sold"],
+                "revenue": doc["revenue"],
+            }
+            for doc in self.orders.aggregate(pipeline)
+        ]
 
     def unsold_products(self, target_date: date) -> list[dict[str, Any]]:
         sold_ids = self.orders.distinct(

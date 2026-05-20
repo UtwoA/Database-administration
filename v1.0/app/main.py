@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Annotated
 from typing import Any
+from typing import Literal
 
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.responses import JSONResponse
@@ -10,9 +11,8 @@ from pymongo.errors import PyMongoError
 from pydantic import BaseModel, Field
 
 from app.config import Settings, get_settings
-from app.db import ping_database
+from app.db import get_database, ping_database
 from app.pages import router as pages_router
-from app.repository_factory import get_shop_repository
 from app.repositories import ShopRepository
 from app.security import require_permission
 
@@ -45,7 +45,7 @@ class CartItemCreate(BaseModel):
 
 
 class OrderStatusUpdate(BaseModel):
-    status: str = Field(min_length=2, max_length=40)
+    status: Literal["processing", "shipped", "delivered", "cancelled"]
 
 
 class ProductCreate(BaseModel):
@@ -67,14 +67,11 @@ class ProductUpdate(BaseModel):
 
 
 def get_repository(settings: Settings = Depends(get_settings)) -> ShopRepository:
-    return get_shop_repository(settings)
+    return ShopRepository(get_database(), settings)
 
 
 @app.get("/health")
 def health() -> dict[str, object]:
-    settings = get_settings()
-    if settings.use_mock_data:
-        return {"status": "ok", "database": "mock"}
     ping_database()
     return {"status": "ok", "database": "connected"}
 

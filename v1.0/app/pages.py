@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from app.config import Settings, get_settings
-from app.repository_factory import get_shop_repository
+from app.db import get_database
 from app.repositories import ShopRepository
 from app.security import ROLE_PERMISSIONS
 
@@ -19,7 +19,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 def get_repository(settings: Settings = Depends(get_settings)) -> ShopRepository:
-    return get_shop_repository(settings)
+    return ShopRepository(get_database(), settings)
 
 
 def can(role: str, permission: str) -> bool:

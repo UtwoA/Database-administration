@@ -29,7 +29,6 @@ Copy-Item .env.example .env
 Default real database settings:
 
 ```env
-USE_MOCK_DATA=false
 MONGO_URI=mongodb://admin:admin123@localhost:27017/shop?authSource=admin
 ```
 
@@ -141,24 +140,4 @@ Use this when you need a clean database:
 docker compose down -v
 docker compose up -d
 Get-Content docker\seed-from-friend-compose.js | docker exec -i printer_store_mongo mongosh --username admin --password admin123 --authenticationDatabase admin
-```
-
-## 8. Mock Mode
-
-If Docker or MongoDB is unavailable, enable mock mode in `.env`:
-
-```env
-USE_MOCK_DATA=true
-```
-
-Restart the app:
-
-```powershell
-python -m uvicorn app.main:app --reload
-```
-
-To return to MongoDB:
-
-```env
-USE_MOCK_DATA=false
 ```

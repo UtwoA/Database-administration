@@ -111,12 +111,26 @@ class SchemaAdapter:
     def order_to_api(self, doc: dict[str, Any]) -> dict[str, Any]:
         s = self.settings
         items = doc.get(s.order_products_field, doc.get("items", []))
+        normalized_items = []
+        for item in items:
+            product_id = item.get("productId", item.get("product_id"))
+            price = float(item.get("price", 0))
+            quantity = int(item.get("quantity", 0))
+            normalized_items.append(
+                {
+                    "product_id": stringify_id(product_id),
+                    "name": item.get("name"),
+                    "quantity": quantity,
+                    "price": price,
+                    "subtotal": price * quantity,
+                }
+            )
         total = doc.get(s.order_total_field, doc.get("total", 0))
         created_at = doc.get(s.order_date_field, doc.get("created_at"))
         return {
             "id": stringify_id(doc.get("_id", doc.get("id"))),
             "client_id": stringify_id(doc.get(s.order_customer_field, doc.get("client_id"))),
-            "items": items,
+            "items": normalized_items,
             "status": doc.get(s.order_status_field, doc.get("status")),
             "created_at": created_at,
             "updated_at": doc.get("updated_at"),
