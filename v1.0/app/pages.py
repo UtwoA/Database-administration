@@ -14,8 +14,56 @@ from app.repositories import ShopRepository
 from app.security import ROLE_PERMISSIONS
 
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+
+DEMO_CLIENTS = [
+    {"id": "665000000000000000000201", "label": "Demo Client", "role": "user"},
+    {"id": "665000000000000000000202", "label": "Alice Ivanova", "role": "user"},
+    {"id": "665000000000000000000203", "label": "Sofia Petrova", "role": "user"},
+]
+
+ROLE_GUIDES = {
+    "guest": {
+        "title": "Гость",
+        "description": "Может просматривать категории и товары без корзины и заказов.",
+    },
+    "user": {
+        "title": "Покупатель",
+        "description": "Работает с каталогом, корзиной и собственными заказами через client_id.",
+    },
+    "manager": {
+        "title": "Менеджер",
+        "description": "Управляет товарами, меняет статусы заказов и смотрит аналитику.",
+    },
+    "admin": {
+        "title": "Администратор",
+        "description": "Имеет полный доступ и управляет клиентами в стенде.",
+    },
+}
+
+SESSION_PRESETS = [
+    {
+        "label": "Каталог как гость",
+        "href": "/?role=guest",
+        "caption": "Просмотр каталога без client_id",
+    },
+    {
+        "label": "Покупатель Demo Client",
+        "href": "/?role=user&client_id=665000000000000000000201",
+        "caption": "Корзина и заказы тестового клиента",
+    },
+    {
+        "label": "Менеджер",
+        "href": "/manager/products?role=manager",
+        "caption": "Товары, статусы заказов, аналитика",
+    },
+    {
+        "label": "Администратор",
+        "href": "/admin/clients?role=admin",
+        "caption": "Управление клиентами и полный доступ",
+    },
+]
 
 
 def get_repository(settings: Settings = Depends(get_settings)) -> ShopRepository:
@@ -40,12 +88,25 @@ def page_url(path: str, **params: Any) -> str:
     return f"{path}?{urlencode(clean)}"
 
 
+def forbidden_redirect(role: str, client_id: str = "") -> RedirectResponse:
+    return RedirectResponse(page_url("/", role=role, client_id=client_id, error="forbidden"), status_code=303)
+
+
+def require_page_permission(role: str, permission: str, client_id: str = "") -> RedirectResponse | None:
+    if can(role, permission):
+        return None
+    return forbidden_redirect(role, client_id)
+
+
 def render(request: Request, template: str, context: dict[str, Any]):
     role = role_or_default(context.get("role"))
     base_context = {
         "request": request,
         "role": role,
         "roles": list(ROLE_PERMISSIONS.keys()),
+        "role_guide": ROLE_GUIDES[role],
+        "session_presets": SESSION_PRESETS,
+        "demo_clients": DEMO_CLIENTS,
         "client_id": context.get("client_id") or "",
         "can": can,
         "message": context.get("message"),
@@ -132,8 +193,11 @@ def cart_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
+    redirect = require_page_permission(role, "manage_own_cart", client_id)
+    if redirect:
+        return redirect
     cart = {"items": [], "total": 0}
-    if client_id and can(role, "manage_own_cart"):
+    if client_id:
         try:
             cart = repo.get_cart(client_id)
         except HTTPException as exc:
@@ -167,8 +231,11 @@ def orders_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
+    redirect = require_page_permission(role, "read_own_orders", client_id)
+    if redirect:
+        return redirect
     orders = []
-    if client_id and can(role, "read_own_orders"):
+    if client_id:
         try:
             orders = repo.list_client_orders(client_id)
         except HTTPException as exc:
@@ -186,8 +253,11 @@ def manager_products_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    products = repo.list_products() if can(role, "manage_products") else []
-    categories = repo.list_categories() if can(role, "manage_products") else []
+    redirect = require_page_permission(role, "manage_products", client_id)
+    if redirect:
+        return redirect
+    products = repo.list_products()
+    categories = repo.list_categories()
     return render(
         request,
         "manager_products.html",
@@ -248,8 +318,9 @@ def delete_product_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    if can(role, "manage_products"):
-        repo.delete_product(product_id)
+    if not can(role, "manage_products"):
+        return forbidden_redirect(role, client_id)
+    repo.delete_product(product_id)
     return RedirectResponse(page_url("/manager/products", role=role, client_id=client_id), status_code=303)
 
 
@@ -262,8 +333,9 @@ def update_order_status_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    if can(role, "update_order_status"):
-        repo.update_order_status(order_id, status)
+    if not can(role, "update_order_status"):
+        return forbidden_redirect(role, client_id)
+    repo.update_order_status(order_id, status)
     return RedirectResponse(page_url("/manager/analytics", role=role, client_id=client_id), status_code=303)
 
 
@@ -280,15 +352,16 @@ def manager_analytics_page(
     repo: ShopRepository = Depends(get_repository),
 ):
     role = role_or_default(role)
-    analytics = {"top_sales": [], "active_clients": [], "categories_demand": [], "unsold_products": [], "orders": []}
-    if can(role, "read_analytics"):
-        analytics = {
-            "top_sales": repo.top_sales(months, 10),
-            "active_clients": repo.active_clients(min_orders, from_date),
-            "categories_demand": repo.categories_demand(from_date, to_date),
-            "unsold_products": repo.unsold_products(target_date),
-            "orders": repo.list_orders(30),
-        }
+    redirect = require_page_permission(role, "read_analytics", client_id)
+    if redirect:
+        return redirect
+    analytics = {
+        "top_sales": repo.top_sales(months, 10),
+        "active_clients": repo.active_clients(min_orders, from_date),
+        "categories_demand": repo.categories_demand(from_date, to_date),
+        "unsold_products": repo.unsold_products(target_date),
+        "orders": repo.list_orders(30),
+    }
     return render(
         request,
         "manager_analytics.html",
@@ -305,3 +378,93 @@ def manager_analytics_page(
             },
         },
     )
+
+
+@router.get("/admin/clients")
+def admin_clients_page(
+    request: Request,
+    role: str = "admin",
+    client_id: str = "",
+    message: str | None = None,
+    error: str | None = None,
+    repo: ShopRepository = Depends(get_repository),
+):
+    role = role_or_default(role)
+    redirect = require_page_permission(role, "manage_users", client_id)
+    if redirect:
+        return redirect
+    return render(
+        request,
+        "admin_clients.html",
+        {
+            "role": role,
+            "client_id": client_id,
+            "clients": repo.list_clients(),
+            "message": message,
+            "error": error,
+        },
+    )
+
+
+@router.post("/admin/clients")
+def create_client_page(
+    role: str = Form("admin"),
+    client_id: str = Form(""),
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    email: str = Form(...),
+    phone: str = Form(...),
+    repo: ShopRepository = Depends(get_repository),
+):
+    role = role_or_default(role)
+    if not can(role, "manage_users"):
+        return forbidden_redirect(role, client_id)
+    repo.create_client(
+        {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+        }
+    )
+    return RedirectResponse(page_url("/admin/clients", role=role, client_id=client_id, message="client-created"), status_code=303)
+
+
+@router.post("/admin/clients/{managed_client_id}/edit")
+def update_client_page(
+    managed_client_id: str,
+    role: str = Form("admin"),
+    client_id: str = Form(""),
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    email: str = Form(...),
+    phone: str = Form(...),
+    repo: ShopRepository = Depends(get_repository),
+):
+    role = role_or_default(role)
+    if not can(role, "manage_users"):
+        return forbidden_redirect(role, client_id)
+    repo.update_client(
+        managed_client_id,
+        {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "phone": phone,
+        },
+    )
+    return RedirectResponse(page_url("/admin/clients", role=role, client_id=client_id, message="client-updated"), status_code=303)
+
+
+@router.post("/admin/clients/{managed_client_id}/delete")
+def delete_client_page(
+    managed_client_id: str,
+    role: str = Form("admin"),
+    client_id: str = Form(""),
+    repo: ShopRepository = Depends(get_repository),
+):
+    role = role_or_default(role)
+    if not can(role, "manage_users"):
+        return forbidden_redirect(role, client_id)
+    repo.delete_client(managed_client_id)
+    return RedirectResponse(page_url("/admin/clients", role=role, client_id=client_id, message="client-deleted"), status_code=303)

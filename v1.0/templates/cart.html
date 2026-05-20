@@ -1,24 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Printer Shop Cart{% endblock %}
+{% block title %}Корзина Printer Shop{% endblock %}
 
 {% block content %}
 <section class="panel">
   <div class="section-head">
     <div>
       <p class="eyebrow">Customer workspace</p>
-      <h1>Cart</h1>
+      <h1>Корзина</h1>
     </div>
-    <span class="data-pill">{{ cart["items"]|length }} items</span>
+    <span class="data-pill">{{ cart["items"]|length }} позиций</span>
   </div>
 
   <div class="table-wrap">
     <table>
       <thead>
         <tr>
-          <th>Product</th>
-          <th>Price</th>
-          <th>Qty</th>
-          <th>Subtotal</th>
+          <th>Товар</th>
+          <th>Цена</th>
+          <th>Кол-во</th>
+          <th>Сумма</th>
         </tr>
       </thead>
       <tbody>
@@ -30,18 +30,18 @@
             <td>{{ "%.2f"|format(item.subtotal) }}</td>
           </tr>
         {% else %}
-          <tr><td colspan="4">Cart is empty.</td></tr>
+          <tr><td colspan="4">Корзина пуста.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
   <div class="summary">
-    <strong>Total: {{ "%.0f"|format(cart.total) }} RUB</strong>
+    <strong>Итого: {{ "%.2f"|format(cart.total) }} RUB</strong>
     <form method="post" action="/orders/create">
       <input type="hidden" name="role" value="{{ role }}">
       <input type="hidden" name="client_id" value="{{ client_id }}">
-      <button type="submit" {% if not cart["items"] or not can(role, "create_order") %}disabled{% endif %}>Create order</button>
+      <button type="submit" {% if not cart["items"] or not can(role, "create_order") %}disabled{% endif %}>Оформить заказ</button>
     </form>
   </div>
 </section>

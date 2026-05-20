@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Printer Shop{% endblock %}</title>
+  <title>{% block title %}Стенд Printer Shop{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
 </head>
 <body>
@@ -12,20 +12,31 @@
       <span class="brand-mark">PS</span>
       <span>
         Printer Shop
-        <small>MongoDB study stand</small>
+        <small>Учебный стенд MongoDB + FastAPI</small>
       </span>
     </a>
     <nav class="nav">
-      <a href="/?role={{ role }}&client_id={{ client_id }}">Catalog</a>
-      <a href="/cart?role={{ role }}&client_id={{ client_id }}">Cart</a>
-      <a href="/orders?role={{ role }}&client_id={{ client_id }}">Orders</a>
-      <a href="/manager/products?role={{ role }}&client_id={{ client_id }}">Products</a>
-      <a href="/manager/analytics?role={{ role }}&client_id={{ client_id }}">Analytics</a>
+      <a href="/?role={{ role }}&client_id={{ client_id }}">Каталог</a>
+      {% if can(role, "manage_own_cart") %}
+        <a href="/cart?role={{ role }}&client_id={{ client_id }}">Корзина</a>
+      {% endif %}
+      {% if can(role, "read_own_orders") %}
+        <a href="/orders?role={{ role }}&client_id={{ client_id }}">Заказы</a>
+      {% endif %}
+      {% if can(role, "manage_products") %}
+        <a href="/manager/products?role={{ role }}&client_id={{ client_id }}">Товары</a>
+      {% endif %}
+      {% if can(role, "read_analytics") %}
+        <a href="/manager/analytics?role={{ role }}&client_id={{ client_id }}">Аналитика</a>
+      {% endif %}
+      {% if can(role, "manage_users") %}
+        <a href="/admin/clients?role={{ role }}&client_id={{ client_id }}">Клиенты</a>
+      {% endif %}
       <a href="/docs">API</a>
     </nav>
     <form class="session" method="get" action="{{ request.url.path }}">
       <label>
-        Role
+        Роль
         <select name="role">
           {% for item in roles %}
             <option value="{{ item }}" {% if item == role %}selected{% endif %}>{{ item }}</option>
@@ -33,14 +44,56 @@
         </select>
       </label>
       <label>
-        Client
-        <input type="text" name="client_id" value="{{ client_id }}" placeholder="client id">
+        Client ID
+        <input type="text" name="client_id" value="{{ client_id }}" placeholder="665000000000000000000201">
       </label>
-      <button type="submit">Apply</button>
+      <button type="submit">Применить</button>
     </form>
   </header>
 
   <main class="page">
+    <section class="workspace-banner">
+      <div class="workspace-card">
+        <p class="eyebrow">Текущий контекст</p>
+        <h2>{{ role_guide.title }}</h2>
+        <p>{{ role_guide.description }}</p>
+        <div class="workspace-meta">
+          <span class="data-pill">role={{ role }}</span>
+          {% if client_id %}
+            <span class="data-pill">client_id={{ client_id }}</span>
+          {% else %}
+            <span class="data-pill">client_id не задан</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="workspace-card">
+        <p class="eyebrow">Быстрый старт</p>
+        <h2>Готовые сценарии</h2>
+        <div class="preset-list">
+          {% for preset in session_presets %}
+            <a class="preset-link" href="{{ preset.href }}">
+              <strong>{{ preset.label }}</strong>
+              <span>{{ preset.caption }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="workspace-card">
+        <p class="eyebrow">Demo-покупатели</p>
+        <h2>Готовые client_id</h2>
+        <div class="preset-list">
+          {% for demo_client in demo_clients %}
+            <a class="preset-link" href="/?role={{ demo_client.role }}&client_id={{ demo_client.id }}">
+              <strong>{{ demo_client.label }}</strong>
+              <span>{{ demo_client.id }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
     {% if message %}
       <div class="notice">{{ message }}</div>
     {% endif %}

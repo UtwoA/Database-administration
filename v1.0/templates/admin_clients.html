@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Администрирование клиентов{% endblock %}
+
+{% block content %}
+<section class="manager-layout">
+  <form class="panel product-form stack-form" method="post" action="/admin/clients">
+    <p class="eyebrow">Панель администратора</p>
+    <h1>Создать клиента</h1>
+    <input type="hidden" name="role" value="{{ role }}">
+    <input type="hidden" name="client_id" value="{{ client_id }}">
+    <label>Имя<input name="first_name" required></label>
+    <label>Фамилия<input name="last_name" required></label>
+    <label>Email<input name="email" type="email" required></label>
+    <label>Телефон<input name="phone" required></label>
+    <button type="submit">Создать клиента</button>
+  </form>
+
+  <section class="panel">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Панель администратора</p>
+        <h1>Клиенты</h1>
+      </div>
+      <span class="data-pill">{{ clients|length }} клиентов</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Клиент</th>
+            <th>Email</th>
+            <th>Телефон</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for managed_client in clients %}
+            {% set edit_form_id = "edit-client-" ~ managed_client.id %}
+            <tr>
+              <td>
+                <form id="{{ edit_form_id }}" method="post" action="/admin/clients/{{ managed_client.id }}/edit">
+                  <input type="hidden" name="role" value="{{ role }}">
+                  <input type="hidden" name="client_id" value="{{ client_id }}">
+                </form>
+                <div class="row-actions">
+                  <input form="{{ edit_form_id }}" type="text" name="first_name" value="{{ managed_client.first_name }}" required>
+                  <input form="{{ edit_form_id }}" type="text" name="last_name" value="{{ managed_client.last_name }}" required>
+                </div>
+              </td>
+              <td>
+                <input form="{{ edit_form_id }}" type="email" name="email" value="{{ managed_client.email }}" required>
+              </td>
+              <td>
+                <input form="{{ edit_form_id }}" type="text" name="phone" value="{{ managed_client.phone }}" required>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button form="{{ edit_form_id }}" type="submit">Сохранить</button>
+                  <form method="post" action="/admin/clients/{{ managed_client.id }}/delete">
+                    <input type="hidden" name="role" value="{{ role }}">
+                    <input type="hidden" name="client_id" value="{{ client_id }}">
+                    <button class="danger" type="submit">Удалить</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4">Клиентов пока нет.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+{% endblock %}
