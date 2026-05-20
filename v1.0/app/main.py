@@ -1,14 +1,13 @@
 from datetime import date
 from typing import Annotated
-from typing import Any
 from typing import Literal
 
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pymongo.errors import PyMongoError
 from pydantic import BaseModel, Field
+from pymongo.errors import PyMongoError
 
 from app.config import Settings, get_settings
 from app.db import get_database, ping_database
@@ -24,7 +23,7 @@ app = FastAPI(
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.include_router(pages_router)
+app.include_router(pages_router, include_in_schema=False)
 templates = Jinja2Templates(directory="templates")
 
 
@@ -48,13 +47,31 @@ class OrderStatusUpdate(BaseModel):
     status: Literal["processing", "shipped", "delivered", "cancelled"]
 
 
+class ProductCharacteristicsCreate(BaseModel):
+    technology: Literal["Laser", "Inkjet", "LED", "3D"]
+    paper_format: Literal["A4", "A3", "A5"]
+    colors_number: int = Field(ge=1)
+    print_speed: str | None = None
+    resolution: str | None = None
+    tray_capacity: str | None = None
+
+
+class ProductCharacteristicsUpdate(BaseModel):
+    technology: Literal["Laser", "Inkjet", "LED", "3D"] | None = None
+    paper_format: Literal["A4", "A3", "A5"] | None = None
+    colors_number: int | None = Field(default=None, ge=1)
+    print_speed: str | None = None
+    resolution: str | None = None
+    tray_capacity: str | None = None
+
+
 class ProductCreate(BaseModel):
     name: str = Field(min_length=2)
     category_id: str
     price: float = Field(ge=0)
     quantity: int = Field(ge=0)
-    manufacturer: str | None = None
-    characteristics: dict[str, Any] = Field(default_factory=dict)
+    manufacturer: str = Field(min_length=1)
+    characteristics: ProductCharacteristicsCreate
 
 
 class ProductUpdate(BaseModel):
@@ -62,8 +79,22 @@ class ProductUpdate(BaseModel):
     category_id: str | None = None
     price: float | None = Field(default=None, ge=0)
     quantity: int | None = Field(default=None, ge=0)
-    manufacturer: str | None = None
-    characteristics: dict[str, Any] | None = None
+    manufacturer: str | None = Field(default=None, min_length=1)
+    characteristics: ProductCharacteristicsUpdate | None = None
+
+
+class ClientCreate(BaseModel):
+    first_name: str = Field(min_length=2)
+    last_name: str = Field(min_length=2)
+    email: str = Field(min_length=5)
+    phone: str = Field(min_length=5)
+
+
+class ClientUpdate(BaseModel):
+    first_name: str | None = Field(default=None, min_length=2)
+    last_name: str | None = Field(default=None, min_length=2)
+    email: str | None = Field(default=None, min_length=5)
+    phone: str | None = Field(default=None, min_length=5)
 
 
 def get_repository(settings: Settings = Depends(get_settings)) -> ShopRepository:
@@ -79,6 +110,31 @@ def health() -> dict[str, object]:
 @app.get("/categories", dependencies=[Depends(require_permission("read_products"))])
 def list_categories(repo: ShopRepository = Depends(get_repository)):
     return repo.list_categories()
+
+
+@app.get("/clients", dependencies=[Depends(require_permission("manage_users"))])
+def list_clients(repo: ShopRepository = Depends(get_repository)):
+    return repo.list_clients()
+
+
+@app.get("/clients/{client_id}", dependencies=[Depends(require_permission("manage_users"))])
+def get_client(client_id: str, repo: ShopRepository = Depends(get_repository)):
+    return repo.get_client(client_id)
+
+
+@app.post("/clients", dependencies=[Depends(require_permission("manage_users"))])
+def create_client(payload: ClientCreate, repo: ShopRepository = Depends(get_repository)):
+    return repo.create_client(payload.model_dump())
+
+
+@app.patch("/clients/{client_id}", dependencies=[Depends(require_permission("manage_users"))])
+def update_client(client_id: str, payload: ClientUpdate, repo: ShopRepository = Depends(get_repository)):
+    return repo.update_client(client_id, payload.model_dump(exclude_unset=True))
+
+
+@app.delete("/clients/{client_id}", dependencies=[Depends(require_permission("manage_users"))])
+def delete_client(client_id: str, repo: ShopRepository = Depends(get_repository)):
+    return repo.delete_client(client_id)
 
 
 @app.get("/products", dependencies=[Depends(require_permission("read_products"))])
