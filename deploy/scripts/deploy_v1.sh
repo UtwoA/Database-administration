@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_ROOT="${APP_ROOT:-/opt/database-administration/app}"
+APP_ROOT="${APP_ROOT:-/opt/Database-administration}"
 APP_VERSION_DIR="$APP_ROOT/v1.0"
 
 if [[ ! -d "$APP_VERSION_DIR" ]]; then
