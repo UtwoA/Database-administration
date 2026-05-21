@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "v1.0/**"
-      - "portal/**"
-      - "deploy/**"
-      - ".github/workflows/deploy.yml"
-      - "README.md"
   workflow_dispatch:
 
 jobs:
