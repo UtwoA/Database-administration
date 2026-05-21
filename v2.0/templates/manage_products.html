@@ -3,7 +3,7 @@
 {% block content %}
 <section class="panel">
     <h2>Товары в MongoDB</h2>
-    <form method="post" action="/manage/products" class="entity-form">
+    <form method="post" action="{{ root_path }}/manage/products" class="entity-form">
         <input type="text" name="name" placeholder="Название товара" required>
         <input type="text" name="category" placeholder="Категория" required>
         <input type="number" name="price" step="0.01" min="0" placeholder="Цена" required>
@@ -42,7 +42,7 @@
                         <td>{{ product.quantity }}</td>
                         <td>{{ product.description }}</td>
                         <td>
-                            <form method="post" action="/manage/products/{{ product.id }}/delete">
+                            <form method="post" action="{{ root_path }}/manage/products/{{ product.id }}/delete">
                                 <button type="submit" class="danger">Удалить</button>
                             </form>
                         </td>
