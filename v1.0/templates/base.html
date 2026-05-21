@@ -52,48 +52,6 @@
   </header>
 
   <main class="page">
-    <section class="workspace-banner">
-      <div class="workspace-card">
-        <p class="eyebrow">Текущий контекст</p>
-        <h2>{{ role_guide.title }}</h2>
-        <p>{{ role_guide.description }}</p>
-        <div class="workspace-meta">
-          <span class="data-pill">role={{ role }}</span>
-          {% if client_id %}
-            <span class="data-pill">client_id={{ client_id }}</span>
-          {% else %}
-            <span class="data-pill">client_id не задан</span>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="workspace-card">
-        <p class="eyebrow">Быстрый старт</p>
-        <h2>Готовые сценарии</h2>
-        <div class="preset-list">
-          {% for preset in session_presets %}
-            <a class="preset-link" href="{{ preset.href }}">
-              <strong>{{ preset.label }}</strong>
-              <span>{{ preset.caption }}</span>
-            </a>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="workspace-card">
-        <p class="eyebrow">Demo-покупатели</p>
-        <h2>Готовые client_id</h2>
-        <div class="preset-list">
-          {% for demo_client in demo_clients %}
-            <a class="preset-link" href="{{ app_path('/', role=demo_client.role, client_id=demo_client.id) }}">
-              <strong>{{ demo_client.label }}</strong>
-              <span>{{ demo_client.id }}</span>
-            </a>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
     {% if message %}
       <div class="notice">{{ message }}</div>
     {% endif %}

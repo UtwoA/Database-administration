@@ -32,10 +32,19 @@ def mongo_exception_handler(request: Request, exc: PyMongoError):
     if "text/html" in request.headers.get("accept", ""):
         return templates.TemplateResponse(
             "db_error.html",
-            {"request": request, "error": str(exc)},
+            {
+                "request": request,
+                "error": str(exc),
+            },
             status_code=503,
         )
-    return JSONResponse(status_code=503, content={"detail": "MongoDB is unavailable.", "error": str(exc)})
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "MongoDB is unavailable.",
+            "error": str(exc),
+        },
+    )
 
 
 class CartItemCreate(BaseModel):
@@ -101,6 +110,15 @@ def get_repository(settings: Settings = Depends(get_settings)) -> ShopRepository
     return ShopRepository(get_database(), settings)
 
 
+def parse_optional_float(value: str | None) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 @app.get("/health")
 def health() -> dict[str, object]:
     ping_database()
@@ -142,14 +160,16 @@ def list_products(
     request: Request,
     category_id: str | None = None,
     q: str | None = None,
-    min_price: float | None = Query(default=None, ge=0),
-    max_price: float | None = Query(default=None, ge=0),
+    min_price: str | None = None,
+    max_price: str | None = None,
     manufacturer: str | None = None,
     repo: ShopRepository = Depends(get_repository),
 ):
     known = {"category_id", "q", "min_price", "max_price", "manufacturer"}
     characteristics = {key: value for key, value in request.query_params.items() if key not in known}
-    return repo.list_products(category_id, q, min_price, max_price, manufacturer, characteristics)
+    parsed_min = parse_optional_float(min_price)
+    parsed_max = parse_optional_float(max_price)
+    return repo.list_products(category_id, q, parsed_min, parsed_max, manufacturer, characteristics)
 
 
 @app.get("/products/{product_id}", dependencies=[Depends(require_permission("read_products"))])
