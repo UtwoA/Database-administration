@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Что демонстрирует этот стенд</h2>
+    <div class="card-grid">
+        {% for card in summary_cards %}
+            <article class="mini-card">
+                <h3>{{ card.title }}</h3>
+                <p>{{ card.text }}</p>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel two-column">
+    <div>
+        <h2>Обязательные API-методы</h2>
+        <ul class="plain-list">
+            <li><code>GET /products</code>, <code>POST /products</code>, <code>DELETE /products/{product_id}</code></li>
+            <li><code>GET /branches</code>, <code>POST /branches</code>, <code>DELETE /branches/{branch_id}</code></li>
+            <li><code>GET /employees</code>, <code>POST /employees</code>, <code>DELETE /employees/{employee_id}</code></li>
+            <li><code>GET /health</code> возвращает объединённый статус MongoDB и PostgreSQL</li>
+        </ul>
+    </div>
+    <div>
+        <h2>Ручная проверка</h2>
+        <ul class="plain-list">
+            <li>Откройте страницы управления через верхнее меню.</li>
+            <li>Создавайте и удаляйте документы в MongoDB на странице «Товары».</li>
+            <li>Создавайте и удаляйте записи в PostgreSQL на страницах «Филиалы» и «Сотрудники».</li>
+            <li>Используйте <code>/docs</code> для Swagger и прямых API-вызовов.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Подсказки по запуску</h2>
+    <p>Запустите стенд командой <code>docker compose up -d --build</code>. Масштабируйте API через <code>docker compose up -d --scale api=2</code>. Для удаления контейнеров и томов обеих БД используйте <code>docker compose down -v</code>.</p>
+</section>
+{% endblock %}

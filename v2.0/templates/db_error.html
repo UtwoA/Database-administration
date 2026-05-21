@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel error-panel">
+    <h2>Ошибка подключения к {{ db_name }}</h2>
+    <p>Приложение не смогло выполнить запрос, потому что база данных недоступна.</p>
+    <pre>{{ error }}</pre>
+</section>
+{% endblock %}

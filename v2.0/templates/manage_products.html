@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Товары в MongoDB</h2>
+    <form method="post" action="/manage/products" class="entity-form">
+        <input type="text" name="name" placeholder="Название товара" required>
+        <input type="text" name="category" placeholder="Категория" required>
+        <input type="number" name="price" step="0.01" min="0" placeholder="Цена" required>
+        <input type="number" name="quantity" min="0" placeholder="Количество" required>
+        <input type="text" name="manufacturer" placeholder="Производитель" required>
+        <textarea name="description" placeholder="Описание" rows="3" required></textarea>
+        <button type="submit">Добавить товар</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="section-head">
+        <h2>Текущий каталог</h2>
+        <span class="meta">{{ products|length }} шт.</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Производитель</th>
+                    <th>Цена</th>
+                    <th>Кол-во</th>
+                    <th>Описание</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category }}</td>
+                        <td>{{ product.manufacturer }}</td>
+                        <td>{{ "%.2f"|format(product.price) }}</td>
+                        <td>{{ product.quantity }}</td>
+                        <td>{{ product.description }}</td>
+                        <td>
+                            <form method="post" action="/manage/products/{{ product.id }}/delete">
+                                <button type="submit" class="danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} v{{ app_version }}</title>
+    <link rel="stylesheet" href="{{ request.url_for('static', path='styles.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Гибридный стенд магазина</p>
+                <h1>{{ app_name }}</h1>
+                <p class="lead">Версия {{ app_version }}: товары в MongoDB, филиалы и сотрудники в PostgreSQL, FastAPI и входная точка через Nginx.</p>
+            </div>
+            <div class="health-card">
+                <p class="health-label">Состояние системы</p>
+                <div class="health-status {{ 'is-ok' if health.status == 'ok' else 'is-error' }}">
+                    {{ health.status_label }}
+                </div>
+                <ul class="health-list">
+                    <li>MongoDB: {{ health.databases.mongodb.status_label }}</li>
+                    <li>PostgreSQL: {{ health.databases.postgresql.status_label }}</li>
+                </ul>
+            </div>
+        </header>
+
+        <nav class="main-nav">
+            {% for item in nav_links %}
+                <a href="{{ item.href }}">{{ item.label }}</a>
+            {% endfor %}
+        </nav>
+
+        {% if message %}
+            <div class="flash flash-success">{{ message }}</div>
+        {% endif %}
+        {% if error %}
+            <div class="flash flash-error">{{ error }}</div>
+        {% endif %}
+
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>
