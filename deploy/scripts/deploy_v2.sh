@@ -23,6 +23,11 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
+# Keep v2 ports isolated from other stacks on the same host (e.g. v1).
+export NGINX_PORT="${NGINX_PORT:-8082}"
+export MONGO_PORT="${MONGO_PORT:-27018}"
+export POSTGRES_PORT="${POSTGRES_PORT:-5433}"
+
 docker compose up -d --build
 
 sudo cp "$APP_REPO/deploy/nginx/database-administration.conf" /etc/nginx/sites-available/database-administration.conf
