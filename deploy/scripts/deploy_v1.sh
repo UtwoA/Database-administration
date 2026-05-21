@@ -33,6 +33,11 @@ fi
 
 docker compose up -d
 
+sudo cp "$APP_REPO/deploy/nginx/database-administration.conf" /etc/nginx/sites-available/database-administration.conf
+sudo ln -sf /etc/nginx/sites-available/database-administration.conf /etc/nginx/sites-enabled/database-administration.conf
+
+sudo nginx -t
+
 sudo systemctl daemon-reload
 sudo systemctl enable "$SERVICE_NAME"
 sudo systemctl restart "$SERVICE_NAME"
