@@ -75,9 +75,22 @@ jobs:
 
       - name: Smoke test HTML with root_path
         run: |
+          echo "Checking home page rendering..."
           curl -fsS "http://127.0.0.1:8001/?role=user&client_id=665000000000000000000201" > /tmp/v1-home.html
-          grep -q '/v1/cart' /tmp/v1-home.html
-          curl -sI "http://127.0.0.1:8001/manager/products?role=user" | grep -qi 'location: /v1/?role=user'
+          if ! grep -n '/v1/cart' /tmp/v1-home.html; then
+            echo "Missing /v1/cart in the rendered home page"
+            sed -n '1,120p' /tmp/v1-home.html
+            exit 1
+          fi
+
+          echo "Checking forbidden redirect..."
+          curl -sS -D /tmp/v1-headers.txt -o /dev/null "http://127.0.0.1:8001/manager/products?role=user"
+          tr -d '\r' < /tmp/v1-headers.txt | sed -n '1,40p'
+          if ! tr -d '\r' < /tmp/v1-headers.txt | grep -qi '^location: /v1/'; then
+            echo "Unexpected Location header"
+            cat /tmp/v1-headers.txt
+            exit 1
+          fi
 
       - name: Cleanup
         if: always()
