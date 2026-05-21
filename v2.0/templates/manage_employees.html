@@ -3,7 +3,7 @@
 {% block content %}
 <section class="panel">
     <h2>Сотрудники в PostgreSQL</h2>
-    <form method="post" action="/manage/employees" class="entity-form">
+    <form method="post" action="{{ root_path }}/manage/employees" class="entity-form">
         <input type="text" name="first_name" placeholder="Имя" required>
         <input type="text" name="last_name" placeholder="Фамилия" required>
         <input type="text" name="position" placeholder="Должность" required>
@@ -47,7 +47,7 @@
                         <td>{{ "%.2f"|format(employee.salary) }}</td>
                         <td>{{ employee.branch_name }} ({{ employee.branch_city }})</td>
                         <td>
-                            <form method="post" action="/manage/employees/{{ employee.id }}/delete">
+                            <form method="post" action="{{ root_path }}/manage/employees/{{ employee.id }}/delete">
                                 <button type="submit" class="danger">Удалить</button>
                             </form>
                         </td>

@@ -3,7 +3,7 @@
 {% block content %}
 <section class="panel">
     <h2>Филиалы в PostgreSQL</h2>
-    <form method="post" action="/manage/branches" class="entity-form">
+    <form method="post" action="{{ root_path }}/manage/branches" class="entity-form">
         <input type="text" name="name" placeholder="Название филиала" required>
         <input type="text" name="city" placeholder="Город" required>
         <textarea name="address" placeholder="Адрес" rows="3" required></textarea>
@@ -35,7 +35,7 @@
                         <td>{{ branch.city }}</td>
                         <td>{{ branch.address }}</td>
                         <td>
-                            <form method="post" action="/manage/branches/{{ branch.id }}/delete">
+                            <form method="post" action="{{ root_path }}/manage/branches/{{ branch.id }}/delete">
                                 <button type="submit" class="danger">Удалить</button>
                             </form>
                         </td>
