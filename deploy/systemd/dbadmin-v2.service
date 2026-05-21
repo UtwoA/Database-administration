@@ -8,6 +8,9 @@ Type=oneshot
 User=deploy
 Group=deploy
 WorkingDirectory=/opt/Database-administration/v2.0
+Environment=NGINX_PORT=8082
+Environment=MONGO_PORT=27018
+Environment=POSTGRES_PORT=5433
 ExecStart=/usr/bin/docker compose up -d
 ExecStop=/usr/bin/docker compose down
 RemainAfterExit=yes
