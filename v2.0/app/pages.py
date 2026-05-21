@@ -84,17 +84,19 @@ def localize_health(health: dict[str, Any]) -> dict[str, Any]:
 
 
 def render(request: Request, template: str, context: dict[str, Any], settings: Settings):
+    root_path = request.scope.get("root_path", "")
     base_context = {
         "request": request,
+        "root_path": root_path,
         "app_name": settings.app_name,
         "app_version": settings.app_version,
         "health": localize_health(get_health_status(settings)),
         "nav_links": [
-            {"href": app_url(request.scope.get("root_path", ""), "/"), "label": "Обзор"},
-            {"href": app_url(request.scope.get("root_path", ""), "/manage/products"), "label": "Товары"},
-            {"href": app_url(request.scope.get("root_path", ""), "/manage/branches"), "label": "Филиалы"},
-            {"href": app_url(request.scope.get("root_path", ""), "/manage/employees"), "label": "Сотрудники"},
-            {"href": app_url(request.scope.get("root_path", ""), "/docs"), "label": "Swagger"},
+            {"href": app_url(root_path, "/"), "label": "Обзор"},
+            {"href": app_url(root_path, "/manage/products"), "label": "Товары"},
+            {"href": app_url(root_path, "/manage/branches"), "label": "Филиалы"},
+            {"href": app_url(root_path, "/manage/employees"), "label": "Сотрудники"},
+            {"href": app_url(root_path, "/docs"), "label": "Swagger"},
         ],
     }
     base_context.update(context)
