@@ -53,8 +53,10 @@ jobs:
 
       - name: Start FastAPI
         run: |
-          python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --root-path /v1 > uvicorn-ci.log 2>&1 &
+          nohup python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --root-path /v1 > uvicorn-ci.log 2>&1 &
           echo $! > uvicorn.pid
+          sleep 2
+          cat uvicorn-ci.log || true
 
       - name: Wait for application
         run: |
@@ -65,6 +67,9 @@ jobs:
             sleep 2
           done
           echo "Application did not become ready in time"
+          if [[ -f uvicorn.pid ]] && ! kill -0 "$(cat uvicorn.pid)" 2>/dev/null; then
+            echo "uvicorn exited early"
+          fi
           cat uvicorn-ci.log || true
           exit 1
 
