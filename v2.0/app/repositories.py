@@ -6,6 +6,7 @@ from bson import ObjectId
 from fastapi import HTTPException, status
 from psycopg.errors import ForeignKeyViolation, UniqueViolation
 from pymongo.database import Database
+from pymongo.errors import OperationFailure, WriteError
 
 from app.config import Settings
 from app.db import postgres_connection
@@ -39,7 +40,29 @@ class ProductRepository:
             "manufacturer": payload["manufacturer"].strip(),
             "description": payload["description"].strip(),
         }
-        result = self.products.insert_one(document)
+
+        if len(document["name"]) < 2:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product name must be at least 2 characters.")
+        if len(document["category"]) < 2:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product category must be at least 2 characters.")
+        if len(document["manufacturer"]) < 2:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product manufacturer must be at least 2 characters.")
+        if len(document["description"]) < 3:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product description must be at least 3 characters.")
+        if document["price"] < 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product price must be non-negative.")
+        if document["quantity"] < 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product quantity must be non-negative.")
+
+        try:
+            result = self.products.insert_one(document)
+        except (WriteError, OperationFailure) as exc:
+            if getattr(exc, "code", None) == 121:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Product data failed validation. Check field lengths and values.",
+                ) from exc
+            raise
         created = self.products.find_one({"_id": result.inserted_id})
         return self._to_api(created)
 

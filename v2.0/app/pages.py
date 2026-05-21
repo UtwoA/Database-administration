@@ -27,6 +27,13 @@ SUCCESS_MESSAGES = {
 ERROR_MESSAGES = {
     "Invalid product id.": "Некорректный идентификатор товара.",
     "Product not found.": "Товар не найден.",
+    "Product name must be at least 2 characters.": "Название товара должно содержать минимум 2 символа.",
+    "Product category must be at least 2 characters.": "Категория товара должна содержать минимум 2 символа.",
+    "Product manufacturer must be at least 2 characters.": "Производитель должен содержать минимум 2 символа.",
+    "Product description must be at least 3 characters.": "Описание товара должно содержать минимум 3 символа.",
+    "Product price must be non-negative.": "Цена товара не может быть отрицательной.",
+    "Product quantity must be non-negative.": "Количество товара не может быть отрицательным.",
+    "Product data failed validation. Check field lengths and values.": "Данные товара не прошли валидацию. Проверьте длину полей и значения.",
     "Branch has linked employees and cannot be removed.": "Нельзя удалить филиал: к нему привязаны сотрудники.",
     "Branch not found.": "Филиал не найден.",
     "Employee with this email already exists.": "Сотрудник с таким email уже существует.",
