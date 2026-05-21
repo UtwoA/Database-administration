@@ -2,159 +2,119 @@
 {% block title %}Каталог Printer Shop{% endblock %}
 
 {% block content %}
-<section class="stand-overview">
-  <div>
-    <p class="eyebrow">Учебный стенд</p>
-    <h1>Каталог товаров</h1>
-    <p class="lead">
-      Это не просто витрина: здесь можно проверить фильтрацию товаров, работу корзины, оформление заказов,
-      аналитику менеджера и администрирование клиентов. Если хочешь быстро пройти сценарий, используй блок
-      "Готовые сценарии" над каталогом.
-    </p>
-  </div>
-  <div class="stand-metrics">
-    <div><strong>{{ products|length }}</strong><span>показано</span></div>
-    <div><strong>{{ categories|length }}</strong><span>категорий</span></div>
-    <div><strong>{{ role }}</strong><span>роль</span></div>
-  </div>
-</section>
-
-<section class="onboarding-grid">
-  <article class="panel">
-    <p class="eyebrow">Как пользоваться</p>
-    <h2>Смена роли и пользователя</h2>
-    <ol class="ordered-list">
-      <li>Выбери роль в правом верхнем углу.</li>
-      <li>Для роли `user` обязательно укажи `client_id` или нажми один из demo-профилей.</li>
-      <li>Нажми "Применить", чтобы открыть стенд в новом контексте доступа.</li>
-      <li>Для `manager` доступны товары и аналитика, для `admin` доступно управление клиентами.</li>
-    </ol>
-  </article>
-
-  <article class="panel">
-    <p class="eyebrow">Что проверить</p>
-    <h2>Основные сценарии</h2>
-    <ul class="plain-list compact-list">
-      <li><span>Покупатель</span> Фильтрация каталога, корзина, создание заказа</li>
-      <li><span>Менеджер</span> Создание товара, смена статуса заказа, аналитические отчеты</li>
-      <li><span>Администратор</span> Создание, редактирование и удаление клиентов</li>
-      <li><span>API</span> Swagger на `/docs` и живая MongoDB под контейнерами Docker</li>
-    </ul>
-  </article>
-</section>
-
-<section class="layout">
-  <aside class="filters">
-    <div class="panel-title">
-      <h2>Фильтры</h2>
-      <span>Параметры выборки</span>
+<section class="panel compact-panel">
+  <div class="section-head compact">
+    <div>
+      <p class="eyebrow">Каталог</p>
+      <h1>Товары и категории</h1>
     </div>
-    <form method="get" action="{{ app_path('/') }}">
-      <input type="hidden" name="role" value="{{ role }}">
-      <input type="hidden" name="client_id" value="{{ client_id }}">
+    <span class="data-pill">{{ products|length }} товаров</span>
+  </div>
 
-      <label>
-        Поиск
-        <input type="search" name="q" value="{{ filters.q }}" placeholder="LaserJet, Epson, toner">
-      </label>
+  <form method="get" action="{{ app_path('/') }}" class="filter-grid">
+    <input type="hidden" name="role" value="{{ role }}">
+    <input type="hidden" name="client_id" value="{{ client_id }}">
 
-      <label>
-        Категория
-        <select name="category_id">
-          <option value="">Все категории</option>
-          {% for category in categories %}
-            <option value="{{ category.id }}" {% if filters.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
-          {% endfor %}
-        </select>
-      </label>
+    <label>
+      Поиск
+      <input type="search" name="q" value="{{ filters.q }}" placeholder="LaserJet">
+    </label>
 
-      <div class="split">
-        <label>
-          Цена от
-          <input type="number" name="min_price" min="0" step="1" value="{{ filters.min_price }}">
-        </label>
-        <label>
-          Цена до
-          <input type="number" name="max_price" min="0" step="1" value="{{ filters.max_price }}">
-        </label>
-      </div>
+    <label>
+      Категория
+      <select name="category_id">
+        <option value="">Все категории</option>
+        {% for category in categories %}
+          <option value="{{ category.id }}" {% if filters.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
 
-      <label>
-        Производитель
-        <input type="text" name="manufacturer" value="{{ filters.manufacturer }}" placeholder="HP, Canon, Epson">
-      </label>
+    <label>
+      Цена от
+      <input type="text" name="min_price" inputmode="decimal" value="{{ filters.min_price }}" placeholder="0">
+    </label>
 
-      <label>
-        Технология
-        <select name="technology">
-          <option value="">Любая</option>
-          {% for item in ["Laser", "Inkjet", "LED", "3D"] %}
-            <option value="{{ item }}" {% if filters.technology == item %}selected{% endif %}>{{ item }}</option>
-          {% endfor %}
-        </select>
-      </label>
+    <label>
+      Цена до
+      <input type="text" name="max_price" inputmode="decimal" value="{{ filters.max_price }}" placeholder="1000">
+    </label>
 
-      <label>
-        Формат бумаги
-        <select name="paper_format">
-          <option value="">Любой</option>
-          {% for item in ["A3", "A4", "A5"] %}
-            <option value="{{ item }}" {% if filters.paper_format == item %}selected{% endif %}>{{ item }}</option>
-          {% endfor %}
-        </select>
-      </label>
+    <label>
+      Производитель
+      <input type="text" name="manufacturer" value="{{ filters.manufacturer }}" placeholder="HP, Canon">
+    </label>
 
-      <button type="submit">Применить фильтры</button>
-    </form>
-  </aside>
+    <label>
+      Технология
+      <select name="technology">
+        <option value="">Любая</option>
+        {% for item in ["Laser", "Inkjet", "LED", "3D"] %}
+          <option value="{{ item }}" {% if filters.technology == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </label>
 
-  <section class="catalog">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">Живой каталог из MongoDB</p>
-        <h2>{{ products|length }} товаров</h2>
-      </div>
-      <span class="data-pill">Live query</span>
-    </div>
-    <div class="product-grid">
-      {% for product in products %}
-        <article class="product-card">
-          <div class="product-head">
-            <div>
-              <p class="maker">{{ product.manufacturer or "Не указан" }}</p>
-              <h3>{{ product.name }}</h3>
-            </div>
-            <span class="data-pill">{{ product.characteristics.technology or "Printer" }}</span>
-          </div>
-          <div class="product-meta">
-            <span>{{ product.characteristics.paper_format or "-" }}</span>
-            <span>{{ product.characteristics.colors_number or "-" }} цветов</span>
-            <span>{{ product.quantity }} на складе</span>
-          </div>
-          <div class="product-price">
-            <strong>{{ "%.2f"|format(product.price) }} RUB</strong>
-          </div>
-          <details class="spec-details">
-            <summary>Характеристики</summary>
-            <dl class="specs">
-              <div><dt>Технология</dt><dd>{{ product.characteristics.technology or "-" }}</dd></div>
-              <div><dt>Формат</dt><dd>{{ product.characteristics.paper_format or "-" }}</dd></div>
-              <div><dt>Скорость</dt><dd>{{ product.characteristics.print_speed or "-" }}</dd></div>
-              <div><dt>Разрешение</dt><dd>{{ product.characteristics.resolution or "-" }}</dd></div>
-            </dl>
-          </details>
-          <form method="post" action="{{ app_path('/cart/items') }}" class="inline-form">
-            <input type="hidden" name="role" value="{{ role }}">
-            <input type="hidden" name="client_id" value="{{ client_id }}">
-            <input type="hidden" name="product_id" value="{{ product.id }}">
-            <input type="number" name="quantity" min="1" value="1" aria-label="Количество">
-            <button type="submit" {% if not can(role, "manage_own_cart") or not client_id %}disabled{% endif %}>В корзину</button>
-          </form>
-        </article>
-      {% else %}
-        <div class="empty">По текущим фильтрам товары не найдены.</div>
+    <label>
+      Формат бумаги
+      <select name="paper_format">
+        <option value="">Любой</option>
+        {% for item in ["A3", "A4", "A5"] %}
+          <option value="{{ item }}" {% if filters.paper_format == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <button type="submit">Показать</button>
+  </form>
+
+  <div class="category-strip">
+    <span class="eyebrow">Категории</span>
+    <div class="category-pills">
+      {% for category in categories %}
+        <a class="pill {% if filters.category_id == category.id %}active{% endif %}" href="{{ app_path('/', role=role, client_id=client_id, category_id=category.id, q=filters.q, min_price=filters.min_price, max_price=filters.max_price, manufacturer=filters.manufacturer, technology=filters.technology, paper_format=filters.paper_format) }}">{{ category.name }}</a>
       {% endfor %}
     </div>
-  </section>
+  </div>
+</section>
+
+<section class="catalog">
+  <div class="product-grid">
+    {% for product in products %}
+      <article class="product-card">
+        <div class="product-head">
+          <div>
+            <p class="maker">{{ product.manufacturer or "Не указан" }}</p>
+            <h3>{{ product.name }}</h3>
+          </div>
+          <span class="data-pill">{{ product.characteristics.technology or "Printer" }}</span>
+        </div>
+        <div class="product-meta">
+          <span>{{ product.characteristics.paper_format or "-" }}</span>
+          <span>{{ product.quantity }} на складе</span>
+        </div>
+        <div class="product-price">
+          <strong>{{ "%.2f"|format(product.price) }} RUB</strong>
+        </div>
+        <details class="spec-details">
+          <summary>Характеристики</summary>
+          <dl class="specs">
+            <div><dt>Технология</dt><dd>{{ product.characteristics.technology or "-" }}</dd></div>
+            <div><dt>Формат</dt><dd>{{ product.characteristics.paper_format or "-" }}</dd></div>
+            <div><dt>Цветов</dt><dd>{{ product.characteristics.colors_number or "-" }}</dd></div>
+          </dl>
+        </details>
+        <form method="post" action="{{ app_path('/cart/items') }}" class="inline-form">
+          <input type="hidden" name="role" value="{{ role }}">
+          <input type="hidden" name="client_id" value="{{ client_id }}">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <input type="number" name="quantity" min="1" value="1" aria-label="Количество">
+          <button type="submit" {% if not can(role, "manage_own_cart") or not client_id %}disabled{% endif %}>В корзину</button>
+        </form>
+      </article>
+    {% else %}
+      <div class="empty">По текущим фильтрам товары не найдены.</div>
+    {% endfor %}
+  </div>
 </section>
 {% endblock %}

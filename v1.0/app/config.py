@@ -1,10 +1,12 @@
 from functools import lru_cache
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 
-load_dotenv()
+ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(ENV_PATH, override=True)
 
 
 def _env(name: str, default: str) -> str:

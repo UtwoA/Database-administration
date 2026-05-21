@@ -103,16 +103,9 @@ a {
 }
 
 .page {
-  width: min(1400px, 100%);
+  width: min(1160px, 100%);
   margin: 0 auto;
-  padding: 22px;
-}
-
-.workspace-banner {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 18px;
+  padding: 16px;
 }
 
 .workspace-card {
@@ -205,20 +198,10 @@ a {
   text-transform: uppercase;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 18px;
+.compact {
+  margin-bottom: 12px;
 }
 
-.onboarding-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 18px;
-}
-
-.filters,
 .panel,
 .product-card,
 .order-card {
@@ -227,13 +210,8 @@ a {
   background: var(--surface);
 }
 
-.filters,
 .panel {
   padding: 16px;
-}
-
-.filters {
-  align-self: start;
 }
 
 h1,
@@ -362,6 +340,51 @@ button.danger {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.compact-panel {
+  margin-bottom: 14px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+  align-items: end;
+}
+
+.filter-grid button {
+  width: 100%;
+}
+
+.category-strip {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.pill.active {
+  border-color: var(--accent);
+  background: #eef4ff;
 }
 
 .data-pill,
@@ -602,6 +625,10 @@ th {
   gap: 8px;
 }
 
+.stack-form button {
+  width: 100%;
+}
+
 .row-actions {
   display: flex;
   gap: 8px;
@@ -635,11 +662,14 @@ th {
   .workspace-banner,
   .onboarding-grid,
   .stand-overview,
-  .layout,
   .manager-layout,
   .analytics-grid {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr 1fr;
   }
 
   .stand-metrics {
@@ -664,6 +694,7 @@ th {
   }
 
   .split,
+  .filter-grid,
   .session,
   .analytics-filter {
     grid-template-columns: 1fr;

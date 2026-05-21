@@ -92,6 +92,15 @@ def page_url(path: str, **params: Any) -> str:
     return f"{path}?{urlencode(clean)}"
 
 
+def parse_optional_float(value: Any) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def app_url(root_path: str, path: str, **params: Any) -> str:
     return f"{root_path}{page_url(path, **params)}"
 
@@ -148,8 +157,8 @@ def shop_home(
     client_id: str = "",
     category_id: str | None = None,
     q: str | None = None,
-    min_price: float | None = Query(default=None, ge=0),
-    max_price: float | None = Query(default=None, ge=0),
+    min_price: str | None = None,
+    max_price: str | None = None,
     manufacturer: str | None = None,
     technology: str | None = None,
     paper_format: str | None = None,
@@ -166,6 +175,8 @@ def shop_home(
         }.items()
         if value
     }
+    parsed_min = parse_optional_float(min_price)
+    parsed_max = parse_optional_float(max_price)
     return render(
         request,
         "shop.html",
@@ -173,12 +184,12 @@ def shop_home(
             "role": role,
             "client_id": client_id,
             "categories": repo.list_categories(),
-            "products": repo.list_products(category_id, q, min_price, max_price, manufacturer, characteristics),
+            "products": repo.list_products(category_id, q, parsed_min, parsed_max, manufacturer, characteristics),
             "filters": {
                 "category_id": category_id or "",
                 "q": q or "",
-                "min_price": min_price if min_price is not None else "",
-                "max_price": max_price if max_price is not None else "",
+                "min_price": min_price or "",
+                "max_price": max_price or "",
                 "manufacturer": manufacturer or "",
                 "technology": technology or "",
                 "paper_format": paper_format or "",
