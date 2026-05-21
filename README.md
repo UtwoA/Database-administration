@@ -16,6 +16,10 @@ Recommended server layout:
 - `/v1/` - `v1.0`
 - `/v2/` - `v2.0`
 
+Current deploy workflow (`.github/workflows/deploy.yml`) syncs the repository and runs:
+- `deploy/scripts/deploy_v1.sh`
+- `deploy/scripts/deploy_v2.sh`
+
 Deploy secrets for GitHub Actions:
 
 - `DEPLOY_HOST`

@@ -1,4 +1,4 @@
-name: Deploy v1.0
+name: Deploy v1.0 and v2.0
 
 on:
   push:
@@ -47,4 +47,4 @@ jobs:
       - name: Run remote deployment
         run: |
           ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "APP_BASE=${REMOTE_APP_BASE} bash ${REMOTE_APP_BASE}/deploy/scripts/deploy_v1.sh"
+            "APP_BASE=${REMOTE_APP_BASE} bash ${REMOTE_APP_BASE}/deploy/scripts/deploy_v1.sh && APP_BASE=${REMOTE_APP_BASE} bash ${REMOTE_APP_BASE}/deploy/scripts/deploy_v2.sh"
