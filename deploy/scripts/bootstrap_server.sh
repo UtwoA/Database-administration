@@ -43,8 +43,8 @@ $APP_USER ALL=(root) NOPASSWD: /usr/bin/systemctl daemon-reload, /usr/bin/system
 EOF
 sudo chmod 440 /etc/sudoers.d/database-administration-deploy
 sudo systemctl daemon-reload
-sudo systemctl enable docker
-sudo systemctl restart docker
+sudo systemctl enable --now containerd
+sudo systemctl enable --now docker.socket
 
 sudo nginx -t
 sudo systemctl enable nginx
