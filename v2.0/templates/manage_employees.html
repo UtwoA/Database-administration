@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Сотрудники в PostgreSQL</h2>
+    <form method="post" action="/manage/employees" class="entity-form">
+        <input type="text" name="first_name" placeholder="Имя" required>
+        <input type="text" name="last_name" placeholder="Фамилия" required>
+        <input type="text" name="position" placeholder="Должность" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="number" name="salary" step="0.01" min="0" placeholder="Зарплата" required>
+        <select name="branch_id" required>
+            <option value="">Выберите филиал</option>
+            {% for branch in branches %}
+                <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Добавить сотрудника</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="section-head">
+        <h2>Список сотрудников</h2>
+        <span class="meta">{{ employees|length }} записей</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Сотрудник</th>
+                    <th>Должность</th>
+                    <th>Email</th>
+                    <th>Зарплата</th>
+                    <th>Филиал</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.id }}</td>
+                        <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                        <td>{{ employee.position }}</td>
+                        <td>{{ employee.email }}</td>
+                        <td>{{ "%.2f"|format(employee.salary) }}</td>
+                        <td>{{ employee.branch_name }} ({{ employee.branch_city }})</td>
+                        <td>
+                            <form method="post" action="/manage/employees/{{ employee.id }}/delete">
+                                <button type="submit" class="danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

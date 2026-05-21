@@ -38,8 +38,9 @@ sudo ln -sf /etc/nginx/sites-available/database-administration.conf /etc/nginx/s
 sudo rm -f /etc/nginx/sites-enabled/default
 
 sudo cp "$REPO_ROOT/deploy/systemd/dbadmin-v1.service" /etc/systemd/system/dbadmin-v1.service
+sudo cp "$REPO_ROOT/deploy/systemd/dbadmin-v2.service" /etc/systemd/system/dbadmin-v2.service
 cat <<EOF | sudo tee /etc/sudoers.d/database-administration-deploy >/dev/null
-$APP_USER ALL=(root) NOPASSWD: /usr/bin/systemctl daemon-reload, /usr/bin/systemctl enable dbadmin-v1.service, /usr/bin/systemctl restart dbadmin-v1.service, /usr/bin/systemctl reload nginx
+$APP_USER ALL=(root) NOPASSWD: /usr/bin/systemctl daemon-reload, /usr/bin/systemctl enable dbadmin-v1.service, /usr/bin/systemctl restart dbadmin-v1.service, /usr/bin/systemctl enable dbadmin-v2.service, /usr/bin/systemctl restart dbadmin-v2.service, /usr/bin/systemctl reload nginx
 EOF
 sudo chmod 440 /etc/sudoers.d/database-administration-deploy
 sudo systemctl daemon-reload
@@ -54,3 +55,4 @@ echo "Bootstrap completed."
 echo "Next steps:"
 echo "  1. Copy the repository to $APP_REPO"
 echo "  2. Run deploy/scripts/deploy_v1.sh"
+echo "  3. Run deploy/scripts/deploy_v2.sh"

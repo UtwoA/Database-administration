@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <h2>Филиалы в PostgreSQL</h2>
+    <form method="post" action="/manage/branches" class="entity-form">
+        <input type="text" name="name" placeholder="Название филиала" required>
+        <input type="text" name="city" placeholder="Город" required>
+        <textarea name="address" placeholder="Адрес" rows="3" required></textarea>
+        <button type="submit">Добавить филиал</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="section-head">
+        <h2>Список филиалов</h2>
+        <span class="meta">{{ branches|length }} записей</span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Город</th>
+                    <th>Адрес</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for branch in branches %}
+                    <tr>
+                        <td>{{ branch.id }}</td>
+                        <td>{{ branch.name }}</td>
+                        <td>{{ branch.city }}</td>
+                        <td>{{ branch.address }}</td>
+                        <td>
+                            <form method="post" action="/manage/branches/{{ branch.id }}/delete">
+                                <button type="submit" class="danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
