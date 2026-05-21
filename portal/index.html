@@ -4,44 +4,68 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Database Administration Stand</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="shell">
-    <section class="hero">
-      <p class="tag">Database Administration</p>
-      <h1>Стенд версий проекта</h1>
-      <p class="lead">
-        Здесь собраны этапы развития учебного проекта. Каждая версия показывает не только изменения интерфейса
-        и кода, но и развитие базы данных, схем, ролей, индексов и административных сценариев.
-      </p>
-    </section>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Database Administration</p>
+        <h1>Версии проекта</h1>
+      </div>
+      <a class="repo-link" href="https://github.com/UtwoA/Database-administration" target="_blank" rel="noreferrer">
+        GitHub ↗
+      </a>
+    </header>
 
-    <section class="grid">
-      <article class="card">
-        <p class="card-tag">Готово</p>
-        <h2>v1.0</h2>
-        <p>MongoDB + FastAPI стенд интернет-магазина принтеров с ролями, аналитикой и администрированием клиентов.</p>
-        <ul>
-          <li>каталог и фильтрация товаров</li>
-          <li>корзина и заказы</li>
-          <li>аналитика менеджера</li>
-          <li>управление клиентами администратором</li>
-        </ul>
-        <a class="button" href="/v1/">Открыть v1.0</a>
-      </article>
+    <section class="grid" aria-label="Версии проекта">
+      <a class="card" href="/v1/">
+        <span class="card-tag status-ready">готово</span>
+        <strong>v1.0</strong>
+        <span class="route">/v1/</span>
+      </a>
 
-      <article class="card">
-        <p class="card-tag muted">В разработке</p>
-        <h2>v2.0</h2>
-        <p>Следующий этап развития проекта. Пока здесь размещена подготовленная страница-заглушка.</p>
-        <ul>
-          <li>отдельный путь публикации</li>
-          <li>место для следующей практической работы</li>
-          <li>единый доступ через портал версий</li>
-        </ul>
-        <a class="button secondary" href="/v2/">Открыть v2.0</a>
-      </article>
+      <a class="card" href="/v2/">
+        <span class="card-tag status-dev">в разработке</span>
+        <strong>v2.0</strong>
+        <span class="route">/v2/</span>
+      </a>
+
+      <a class="card" href="/v3/">
+        <span class="card-tag status-todo">не готово</span>
+        <strong>v3.0</strong>
+        <span class="route">/v3/</span>
+      </a>
+
+      <a class="card" href="/v4/">
+        <span class="card-tag status-todo">не готово</span>
+        <strong>v4.0</strong>
+        <span class="route">/v4/</span>
+      </a>
+
+      <a class="card" href="/v5/">
+        <span class="card-tag status-todo">не готово</span>
+        <strong>v5.0</strong>
+        <span class="route">/v5/</span>
+      </a>
+
+      <a class="card" href="/v6/">
+        <span class="card-tag status-todo">не готово</span>
+        <strong>v6.0</strong>
+        <span class="route">/v6/</span>
+      </a>
+
+      <a class="card" href="/v7/">
+        <span class="card-tag status-todo">не готово</span>
+        <strong>v7.0</strong>
+        <span class="route">/v7/</span>
+      </a>
+
+      <a class="card" href="/v8/">
+        <span class="card-tag status-todo">не готово</span>
+        <strong>v8.0</strong>
+        <span class="route">/v8/</span>
+      </a>
     </section>
   </main>
 </body>
