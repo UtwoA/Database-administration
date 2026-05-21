@@ -1,47 +1,24 @@
 # Database Administration
 
-Репозиторий хранит эволюцию учебного проекта по дисциплине «Администрирование баз данных». Каждая папка `v.x.0` соответствует отдельному этапу развития системы и показывает, как меняется приложение, структура БД, сценарии администрирования и эксплуатационная инфраструктура.
+Repository for a multi-version educational stand for the Database Administration course.
 
-## Структура репозитория
+Structure:
 
-- `v1.0` ... `v8.0` — версии проекта
-- `portal/` — главная страница выбора версии
-- `deploy/nginx/` — конфигурация Nginx
-- `deploy/systemd/` — сервисы systemd
-- `deploy/scripts/` — серверные скрипты первичной настройки и деплоя
-- `.github/workflows/` — CI/CD через GitHub Actions
+- `v1.0` ... `v8.0` - project versions
+- `portal/` - version landing page
+- `deploy/` - Nginx, systemd and server bootstrap/deploy scripts
+- `.github/workflows/` - CI/CD workflows
 
-## Деплой
+Recommended server layout:
 
-Рекомендуемая схема публикации:
+- `/opt/Database-administration` - synced repository
+- `/` - portal
+- `/v1/` - `v1.0`
+- `/v2/` - `v2.0`
 
-- `/` — портал выбора версий
-- `/v1/` — приложение `v1.0`
-- `/v2/` — страница или приложение `v2.0`
-
-Для `v1.0` в репозитории уже подготовлены:
-
-- портал версий
-- path-based проксирование через Nginx
-- systemd unit для FastAPI
-- CI для smoke-проверки `v1.0`
-- CD workflow для выкладки на сервер
-
-## Что настроить в GitHub Secrets
-
-Для deploy workflow потребуются:
+Deploy secrets for GitHub Actions:
 
 - `DEPLOY_HOST`
 - `DEPLOY_PORT`
 - `DEPLOY_USER`
 - `DEPLOY_SSH_KEY`
-
-## Базовый серверный путь
-
-В конфигурации используется каталог:
-
-```text
-/opt/database-administration/app
-```
-
-Именно туда репозиторий синхронизируется при деплое.

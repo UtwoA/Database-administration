@@ -20,6 +20,7 @@ jobs:
       DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      REMOTE_APP_BASE: /opt/Database-administration
 
     steps:
       - name: Checkout repository
@@ -45,9 +46,9 @@ jobs:
             --exclude "v1.0/.venv" \
             --exclude "v1.0/uvicorn.log" \
             --exclude "v1.0/uvicorn.err.log" \
-            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:/opt/database-administration/app/"
+            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${REMOTE_APP_BASE}/"
 
       - name: Run remote deployment
         run: |
           ssh -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "APP_ROOT=/opt/database-administration/app bash /opt/database-administration/app/deploy/scripts/deploy_v1.sh"
+            "APP_BASE=${REMOTE_APP_BASE} bash ${REMOTE_APP_BASE}/deploy/scripts/deploy_v1.sh"

@@ -5,11 +5,11 @@ Requires=docker.service
 
 [Service]
 Type=simple
-User=dbadmin
-Group=dbadmin
-WorkingDirectory=/opt/database-administration/app/v1.0
-EnvironmentFile=/opt/database-administration/app/v1.0/.env
-ExecStart=/opt/database-administration/app/v1.0/.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --root-path /v1
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/Database-administration/v1.0
+EnvironmentFile=/opt/Database-administration/v1.0/.env
+ExecStart=/opt/Database-administration/v1.0/.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --root-path /v1 --proxy-headers --forwarded-allow-ips=127.0.0.1
 Restart=always
 RestartSec=3
 
