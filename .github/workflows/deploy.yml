@@ -32,10 +32,12 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p "${DEPLOY_PORT:-22}" "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_ed25519 -p "${DEPLOY_PORT:-22}" -o IdentitiesOnly=yes "${DEPLOY_USER}@${DEPLOY_HOST}" "echo SSH connection verified"
 
       - name: Sync repository to server
         run: |
           rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -p ${DEPLOY_PORT:-22}" \
             --exclude ".git" \
             --exclude "v1.0/.venv" \
             --exclude "v1.0/uvicorn.log" \
@@ -44,5 +46,5 @@ jobs:
 
       - name: Run remote deployment
         run: |
-          ssh -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "APP_BASE=${REMOTE_APP_BASE} bash ${REMOTE_APP_BASE}/deploy/scripts/deploy_v1.sh"
